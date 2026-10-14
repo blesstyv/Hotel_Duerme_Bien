@@ -1,0 +1,421 @@
+{% extends 'hotel/base.html' %}
+{% load hotel_tags %}
+
+{% block content %}
+
+<div class="detail-grid">
+
+    <article class="detail-card">
+        <span class="metric-icon {% if asignacion.estado == 'ACTIVA' %}green{% else %}blue{% endif %}">
+            {% icon 'check' %}
+        </span>
+
+        <div>
+            <small>Estado</small>
+
+            {% if asignacion.estado == 'ACTIVA' %}
+                <span class="badge badge-success badge-dot">
+                    Activa
+                </span>
+            {% else %}
+                <span class="badge badge-neutral badge-dot">
+                    Finalizada
+                </span>
+            {% endif %}
+        </div>
+    </article>
+
+
+    <article class="detail-card">
+        <span class="metric-icon red">
+            {% icon 'crown' %}
+        </span>
+
+        <div>
+            <small>Responsable del grupo</small>
+            <strong>
+                {{ asignacion.responsable_nombre }}
+            </strong>
+        </div>
+    </article>
+
+
+    <article class="detail-card">
+        <span class="metric-icon purple">
+            {% icon 'user' %}
+        </span>
+
+        <div>
+            <small>RUT responsable</small>
+            <strong>
+                {{ asignacion.responsable_rut }}
+            </strong>
+        </div>
+    </article>
+
+
+    <article class="detail-card">
+        <span class="metric-icon red">
+            {% icon 'bed' %}
+        </span>
+
+        <div>
+            <small>Habitaciones asignadas</small>
+
+            <strong>
+                {% for detalle in detalles %}
+                    {{ detalle.numero_snapshot }}
+                    {% if not forloop.last %}
+                        ,
+                    {% endif %}
+                {% endfor %}
+            </strong>
+        </div>
+    </article>
+
+
+    <article class="detail-card">
+        <span class="metric-icon blue">
+            {% icon 'calendar' %}
+        </span>
+
+        <div>
+            <small>
+                Fecha y hora de ingreso
+            </small>
+
+            <strong>
+                {{ asignacion.fecha_ingreso|date:'d/m/Y H:i' }}
+            </strong>
+        </div>
+    </article>
+
+
+    <article class="detail-card">
+        <span class="metric-icon purple">
+            {% icon 'calendar' %}
+        </span>
+
+        <div>
+            <small>
+                Fecha y hora de salida
+            </small>
+
+            <strong>
+                {{ asignacion.fecha_salida|date:'d/m/Y H:i'|default:'Estadía en curso' }}
+            </strong>
+        </div>
+    </article>
+
+
+    <article class="detail-card">
+        <span class="metric-icon red">
+            {% icon 'users' %}
+        </span>
+
+        <div>
+            <small>Total de pasajeros</small>
+
+            <strong>
+                {{ asignacion.cantidad_pasajeros }}
+            </strong>
+        </div>
+    </article>
+
+
+    <article class="detail-card">
+        <span class="metric-icon orange">
+            {% icon 'money' %}
+        </span>
+
+        <div>
+            <small>
+                Costo total del grupo
+            </small>
+
+            <strong>
+                {{ asignacion.costo_total|clp }} CLP
+            </strong>
+        </div>
+    </article>
+
+</div>
+
+
+<div class="split-grid">
+
+    <section class="panel">
+
+        <div class="panel-heading">
+
+            <div>
+                <h2>
+                    {% icon 'users' %}
+                    Pasajeros de la estadía
+                </h2>
+
+                <p>
+                    Distribución registrada al confirmar
+                    el ingreso.
+                </p>
+            </div>
+
+            <span class="badge badge-neutral">
+                {{ asignacion.cantidad_pasajeros }}
+                pasajeros
+            </span>
+
+        </div>
+
+
+        <div class="table-scroll">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>
+                            Nombre completo
+                        </th>
+
+                        <th>
+                            RUT
+                        </th>
+
+                        <th>
+                            Habitación
+                        </th>
+
+                        <th>
+                            Rol del grupo
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for detalle in detalles %}
+
+                        {% for stay in detalle.hospedajes.all %}
+
+                            <tr>
+
+                                <td>
+                                    <div class="person-cell">
+
+                                        <span class="avatar avatar-soft">
+                                            {{ stay.nombre_snapshot|initials }}
+                                        </span>
+
+                                        <strong>
+                                            {{ stay.nombre_snapshot }}
+                                        </strong>
+
+                                    </div>
+                                </td>
+
+
+                                <td class="nowrap">
+                                    {{ stay.rut_snapshot }}
+                                </td>
+
+
+                                <td>
+                                    <span class="badge badge-neutral">
+                                        {{ detalle.numero_snapshot }}
+                                    </span>
+                                </td>
+
+
+                                <td>
+
+                                    {% if stay.pasajero_id == asignacion.responsable_id %}
+
+                                        <span class="badge badge-purple">
+                                            {% icon 'crown' %}
+                                            Responsable
+                                        </span>
+
+                                    {% else %}
+
+                                        <span class="info-caption">
+                                            Pasajero
+                                        </span>
+
+                                    {% endif %}
+
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <h2>
+                    {% icon 'assignment' %}
+                    Registro de la operación
+                </h2>
+
+                <p>
+                    Información de ingreso y salida.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="panel-body">
+
+            <dl class="summary-list">
+
+                <div>
+
+                    <dt>
+                        Ingreso registrado por
+                    </dt>
+
+                    <dd>
+
+                        {% if asignacion.registrada_por %}
+
+                            {{ asignacion.registrada_por.get_full_name|default:asignacion.registrada_por.username }}
+
+                        {% else %}
+
+                            Sistema
+
+                        {% endif %}
+
+                    </dd>
+
+                </div>
+
+
+                <div>
+
+                    <dt>
+                        Salida registrada por
+                    </dt>
+
+                    <dd>
+
+                        {% if asignacion.liberada_por %}
+
+                            {{ asignacion.liberada_por.get_full_name|default:asignacion.liberada_por.username }}
+
+                        {% else %}
+
+                            —
+
+                        {% endif %}
+
+                    </dd>
+
+                </div>
+
+
+                <div>
+
+                    <dt>
+                        Tarifa por pasajero
+                    </dt>
+
+                    <dd>
+                        $40.000 CLP
+                    </dd>
+
+                </div>
+
+            </dl>
+
+
+            {% if asignacion.estado == 'ACTIVA' %}
+
+                <div class="form-note">
+
+                    {% icon 'info' %}
+
+                    <span>
+                        Registrar la salida finalizará la
+                        estadía y dejará vacantes todas
+                        las habitaciones del grupo.
+                    </span>
+
+                </div>
+
+            {% else %}
+
+                <div class="form-note">
+
+                    {% icon 'shield' %}
+
+                    <span>
+                        La estadía finalizó. El registro
+                        se conserva en los historiales
+                        de sus habitaciones y pasajeros.
+                    </span>
+
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <div class="form-actions">
+
+            <a
+                class="btn btn-secondary"
+                href="{% url 'hotel:asignacion_list' %}"
+            >
+                Volver
+            </a>
+
+
+            {% if asignacion.estado == 'ACTIVA' %}
+
+                <form
+                    method="post"
+                    action="{% url 'hotel:asignacion_liberar' asignacion.pk %}"
+                    data-confirm="Se registrará la salida de {{ asignacion.cantidad_pasajeros }} pasajeros y quedarán vacantes todas las habitaciones de esta asignación. Se conservará su historial."
+                    data-confirm-title="Registrar salida del grupo"
+                >
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        {% icon 'logout' %}
+                        Registrar salida
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

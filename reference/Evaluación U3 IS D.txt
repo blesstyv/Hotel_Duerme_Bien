@@ -1,0 +1,88 @@
+=== PAGE 1 ===
+ 
+Evaluación Unidad 3: Implementación, pruebas y calidad de software 
+Ingeniería de Software 
+ 
+Los grupos que están trabajando desde la unidad anterior , elaboran un informe  y muestran el prototipo 
+funcional del caso asignado desde la Unidad anterior. 
+Para el prototipo: las herramientas de desarrollo para back end , front end y motor de bases de datos son 
+libres, considerando el apego a la escala de apreciación. 
+En el informe, usar formato vertical de 60 años de Inacap con: 
+• Portada 
+• Índice 
+• Introducción 
+• ... 
+• Desarrollo según escala de apreciación 
+• Aplican testing a su software según funcionalidad esperada y estándares de seguridad ISO 27000. 
+• ... 
+• Conclusiones 
+  Escala de apreciación evaluación Unidad 3 Ingeniería de Software 
+Incorporan nuevas tendencias tecnológicas (SaaS, IaaS, 
+PaaS y/o Cloud Computing) en la implementación del 
+prototipo.  
+ 
+Excelente 
+6 
+Bueno 
+3 
+Insuficiente 
+0 
+Explican la importancia de la confiabilidad y la ética en los 
+negocios, a través de instrumentos jurídicos como la Ley 
+21.459, normas internacionales (ISO 27000, 9001)  y 
+OWASP. El prototipo refleja un compromiso con estos 
+principios.   
+Excelente 
+6 
+Bueno 
+3 
+Insuficiente 
+0 
+Producen un prototipo de software considerando los 
+requerimientos planteados, seguridad y buenas prácticas 
+OWASP .  
+ 
+Excelente 
+11 
+Bueno 
+6 
+Insuficiente 
+0 
+Utilizan la arquitectura más apropiada para el proyecto 
+(capas, servicios, cliente servidor Cloud, P2P y/o 
+microservicios).  
+ 
+Excelente 
+6 
+Bueno 
+3 
+Insuficiente 
+0 
+Responden a las preguntas del profesor de manera clara, 
+precisa y con fundamentos sólidos.  
+ 
+Excelente 
+9 
+Bueno 
+5 
+Insuficiente 
+0 
+Muestran prototipo, repartiendo roles, mostrando la 
+funcionalidad de este. 
+ 
+Excelente 
+6 
+Bueno 
+3 
+Insuficiente 
+0 
+Documentan pruebas del prototipo, identificando casos de 
+prueba, resultados esperados, casos de éxito y fracaso. 
+ 
+Excelente 
+6 
+Bueno 
+3 
+Insuficiente 
+0 
+Total: 50 Pts.  
