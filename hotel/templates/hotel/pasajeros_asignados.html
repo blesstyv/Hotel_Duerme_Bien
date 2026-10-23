@@ -1,0 +1,282 @@
+{% extends 'hotel/base.html' %}
+{% load hotel_tags %}
+
+{% block content %}
+
+<section class="panel">
+
+    <div class="toolbar">
+
+        <form
+            method="get"
+            class="filter-form"
+            role="search"
+        >
+
+            <div class="search-field">
+
+                {% icon 'search' %}
+
+                <label
+                    class="sr-only"
+                    for="search"
+                >
+                    Buscar pasajeros asignados
+                </label>
+
+                <input
+                    type="text"
+                    id="search"
+                    name="q"
+                    value="{{ q }}"
+                    placeholder="Buscar por nombre, RUT, correo o habitación…"
+                    maxlength="100"
+                >
+
+            </div>
+
+            <button
+                class="btn btn-secondary"
+                type="submit"
+            >
+                {% icon 'search' %}
+                Buscar
+            </button>
+
+            {% if q %}
+
+                <a
+                    class="btn btn-secondary"
+                    href="{% url 'hotel:pasajeros_asignados' %}"
+                    title="Limpiar búsqueda"
+                >
+                    {% icon 'close' %}
+                    <span class="sr-only">
+                        Limpiar
+                    </span>
+                </a>
+
+            {% endif %}
+
+        </form>
+
+
+        <a
+            class="btn btn-primary"
+            href="{% url 'hotel:asignacion_crear' %}"
+        >
+            {% icon 'plus' %}
+            Nueva asignación
+        </a>
+
+    </div>
+
+
+    <div class="form-note">
+
+        {% icon 'info' %}
+
+        <span>
+            En esta sección aparecen exclusivamente los
+            pasajeros que tienen una estadía activa.
+            Mientras permanezcan asignados no estarán
+            disponibles en una nueva asignación.
+        </span>
+
+    </div>
+
+
+    <div class="table-scroll">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Pasajero</th>
+                    <th>RUT</th>
+                    <th>Habitación</th>
+                    <th>Asignación</th>
+                    <th>Rol</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Acciones</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for hospedaje in hospedajes %}
+
+                    <tr>
+
+                        <td>
+
+                            <div class="person-cell">
+
+                                <span class="avatar avatar-soft">
+                                    {{ hospedaje.pasajero.nombre_completo|initials }}
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        {{ hospedaje.pasajero.nombre_completo }}
+                                    </strong>
+
+                                    <small>
+                                        Hospedaje activo
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+
+                        <td class="nowrap">
+                            {{ hospedaje.pasajero.rut }}
+                        </td>
+
+
+                        <td>
+
+                            <span class="badge badge-success">
+                                Habitación
+                                {{ hospedaje.detalle.habitacion.numero }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <a
+                                class="text-link"
+                                href="{% url 'hotel:asignacion_detalle' hospedaje.detalle.asignacion.pk %}"
+                            >
+                                #{{ hospedaje.detalle.asignacion.pk }}
+                            </a>
+
+                        </td>
+
+
+                        <td>
+
+                            {% if hospedaje.pasajero_id == hospedaje.detalle.asignacion.responsable_id %}
+
+                                <span class="badge badge-purple">
+                                    {% icon 'crown' %}
+                                    Responsable
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge badge-neutral">
+                                    Pasajero
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="nowrap">
+                            {{ hospedaje.pasajero.telefono|default:'—' }}
+                        </td>
+
+
+                        <td>
+                            {{ hospedaje.pasajero.correo|default:'—' }}
+                        </td>
+
+
+                        <td>
+
+                            <div class="actions">
+
+                                <a
+                                    class="icon-button"
+                                    href="{% url 'hotel:pasajero_asignado_editar' hospedaje.pasajero.pk %}"
+                                    title="Editar pasajero asignado"
+                                    aria-label="Editar {{ hospedaje.pasajero.nombre_completo }}"
+                                >
+                                    {% icon 'edit' %}
+                                </a>
+
+
+                                <a
+                                    class="icon-button"
+                                    href="{% url 'hotel:asignacion_detalle' hospedaje.detalle.asignacion.pk %}"
+                                    title="Ver asignación"
+                                    aria-label="Ver asignación"
+                                >
+                                    {% icon 'eye' %}
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="8">
+
+                            <div class="empty-state">
+
+                                {% icon 'users' %}
+
+                                <h3>
+                                    No hay pasajeros asignados
+                                </h3>
+
+                                <p>
+                                    Actualmente no existen pasajeros
+                                    con una estadía activa.
+                                </p>
+
+                                <a
+                                    class="btn btn-primary"
+                                    href="{% url 'hotel:asignacion_crear' %}"
+                                >
+                                    {% icon 'plus' %}
+                                    Nueva asignación
+                                </a>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    {% include 'hotel/includes/pagination.html' %}
+
+
+    <div class="result-count">
+
+        {{ page_obj.paginator.count }}
+        pasajero{{ page_obj.paginator.count|pluralize }}
+        actualmente asignado{{ page_obj.paginator.count|pluralize }}.
+
+    </div>
+
+</section>
+
+{% endblock %}

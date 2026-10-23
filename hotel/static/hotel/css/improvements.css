@@ -1,0 +1,119 @@
+/*
+ * Ajustes complementarios de interfaz.
+ *
+ * Se mantiene separado de app.css para
+ * no modificar la hoja principal ya validada.
+ */
+
+
+/* =========================================================
+   BUSCADORES
+   ========================================================= */
+
+.search-field {
+    position: relative;
+}
+
+.search-field .icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    width: 17px;
+    height: 17px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 2;
+    color: #8c98aa;
+}
+
+.search-field input {
+    width: 100%;
+    padding-left: 46px !important;
+    padding-right: 14px;
+}
+
+.search-field input::placeholder {
+    color: #a0aaba;
+}
+
+
+/* En los buscadores de pasajeros el campo
+   es un poco más compacto, pero conserva
+   espacio suficiente para la lupa. */
+
+.search-field.distribution-search input {
+    padding-left: 44px !important;
+}
+
+
+/* =========================================================
+   FILTRO POR VISTA DE HABITACIÓN
+   ========================================================= */
+
+.room-view-filter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    border: 1px solid #e3e8f0;
+    border-radius: 9px;
+    background: #f8fafd;
+}
+
+.room-view-filter strong {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 12px;
+    color: #17233c;
+}
+
+.room-view-filter .help-text {
+    margin: 0;
+}
+
+.room-view-select {
+    width: 210px;
+    min-width: 210px;
+}
+
+.room-view-badge {
+    display: inline-flex;
+    margin-right: 5px;
+}
+
+
+/* Asegura que elementos filtrados no
+   reaparezcan por reglas display de app.css. */
+
+.room-option[hidden] {
+    display: none !important;
+}
+
+
+/* =========================================================
+   MEJORAS RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+    .search-field .icon {
+        left: 13px;
+    }
+
+    .search-field input {
+        padding-left: 43px !important;
+    }
+
+    .room-view-filter {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .room-view-select {
+        width: 100%;
+        min-width: 0;
+    }
+}

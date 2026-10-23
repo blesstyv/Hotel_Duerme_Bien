@@ -1,47 +1,472 @@
 {% load static hotel_tags %}
 <!doctype html>
+
 <html lang="es">
+
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#cc1234">
-  <title>{% block title %}{{ title|default:"Panel principal" }}{% endblock %} · Hotel Duerme Bien</title>
-  <link rel="icon" type="image/svg+xml" href="{% static 'hotel/img/favicon.svg' %}">
-  <link rel="stylesheet" href="{% static 'hotel/css/app.css' %}">
-  <script src="{% static 'hotel/js/app.js' %}" defer></script>
+
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <meta
+    name="theme-color"
+    content="#cc1234"
+  >
+
+  <title>
+    {% block title %}
+      {{ title|default:"Panel principal" }}
+    {% endblock %}
+    · Hotel Duerme Bien
+  </title>
+
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="{% static 'hotel/img/favicon.svg' %}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{% static 'hotel/css/app.css' %}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{% static 'hotel/css/improvements.css' %}"
+  >
+
+  <script
+    src="{% static 'hotel/js/app.js' %}"
+    defer
+  ></script>
+
+  <script
+    src="{% static 'hotel/js/room_views.js' %}"
+    defer
+  ></script>
+
 </head>
+
+
 <body class="app-body">
-  <a class="skip-link" href="#main-content">Saltar al contenido</a>
+
+  <a
+    class="skip-link"
+    href="#main-content"
+  >
+    Saltar al contenido
+  </a>
+
+
   <header class="topbar">
-    <div class="topbar-brand"><button class="icon-button mobile-menu" type="button" data-sidebar-toggle aria-label="Abrir navegación" aria-expanded="false">{% icon 'menu' %}</button><a class="brand" href="{% url 'hotel:inicio' %}"><span class="brand-mark">{% icon 'bed' %}</span><span><strong>Hotel Duerme Bien</strong><small>Sistema de Gestión de Pasajeros</small></span></a></div>
-    <div class="topbar-right"><span class="system-status"><span></span> Sistema operativo</span><span class="topbar-divider"></span><div class="user-profile"><span class="avatar">{{ user.get_full_name|default:user.username|initials }}</span><span><strong>{{ user.get_full_name|default:user.username }}</strong><small>{{ user.get_rol_display }}</small></span></div></div>
-  </header>
-  <div class="sidebar-scrim" data-sidebar-close></div>
-  <aside class="sidebar" aria-label="Navegación principal">
-    <p class="nav-label">ESPACIO DE TRABAJO</p>
-    <nav>
-      {% if user.rol == 'ADMINISTRADOR' %}
-      <a class="nav-link {% if nav_active == 'dashboard' %}active{% endif %}" href="{% url 'hotel:dashboard_admin' %}" {% if nav_active == 'dashboard' %}aria-current="page"{% endif %}>{% icon 'home' %}<span>Panel principal</span></a>
-      <a class="nav-link {% if nav_active == 'encargados' %}active{% endif %}" href="{% url 'hotel:encargado_list' %}" {% if nav_active == 'encargados' %}aria-current="page"{% endif %}>{% icon 'users' %}<span>Gestión de encargados</span></a>
-      {% else %}
-      <a class="nav-link {% if nav_active == 'dashboard' %}active{% endif %}" href="{% url 'hotel:dashboard_encargado' %}" {% if nav_active == 'dashboard' %}aria-current="page"{% endif %}>{% icon 'home' %}<span>Panel principal</span></a>
-      <a class="nav-link {% if nav_active == 'habitaciones' %}active{% endif %}" href="{% url 'hotel:habitacion_list' %}" {% if nav_active == 'habitaciones' %}aria-current="page"{% endif %}>{% icon 'bed' %}<span>Habitaciones</span></a>
-      <a class="nav-link {% if nav_active == 'pasajeros' %}active{% endif %}" href="{% url 'hotel:pasajero_list' %}" {% if nav_active == 'pasajeros' %}aria-current="page"{% endif %}>{% icon 'users' %}<span>Pasajeros</span></a>
-      <a class="nav-link {% if nav_active == 'asignaciones' %}active{% endif %}" href="{% url 'hotel:asignacion_list' %}" {% if nav_active == 'asignaciones' %}aria-current="page"{% endif %}>{% icon 'assignment' %}<span>Asignaciones</span></a>
-      <a class="nav-link {% if nav_active == 'ocupacion' %}active{% endif %}" href="{% url 'hotel:ocupacion' %}" {% if nav_active == 'ocupacion' %}aria-current="page"{% endif %}>{% icon 'chart' %}<span>Ocupación</span></a>
-      <a class="nav-link {% if nav_active == 'historial' or nav_active == 'historiales' %}active{% endif %}" href="{% url 'hotel:historiales' %}" {% if nav_active == 'historial' or nav_active == 'historiales' %}aria-current="page"{% endif %}>{% icon 'history' %}<span>Historiales</span></a>
-      {% endif %}
-    </nav>
-    <div class="sidebar-bottom"><div class="sidebar-note">{% icon 'shield' %}<div><strong>Acceso protegido</strong><span>{{ user.get_rol_display }}</span></div></div><form action="{% url 'hotel:logout' %}" method="post">{% csrf_token %}<button type="submit" class="nav-link logout-link">{% icon 'logout' %}<span>Cerrar sesión</span></button></form><small class="sidebar-footer">Hotel Duerme Bien © {% now 'Y' %}</small></div>
-  </aside>
-  <main class="main" id="main-content">
-    <div class="main-inner">
-      <div class="breadcrumbs"><a href="{% url 'hotel:inicio' %}">Hotel Duerme Bien</a>{% icon 'chevron' %}<span>{{ title|default:"Panel principal" }}</span></div>
-      <section class="page-hero"><div><span class="eyebrow">{% if user.rol == 'ADMINISTRADOR' %}ADMINISTRACIÓN{% else %}OPERACIÓN DEL HOTEL{% endif %}</span><h1>{{ title|default:"Panel principal" }}</h1><p>{{ subtitle|default:"Todo lo que necesitas para una gestión clara y ordenada." }}</p></div><img src="{% static 'hotel/img/hotel.svg' %}" alt="" class="hero-illustration"></section>
-      {% if messages %}<div class="messages" aria-live="polite">{% for message in messages %}<div class="alert alert-{{ message.tags|default:'info' }}">{% icon 'info' %}<span>{{ message }}</span><button class="icon-button" type="button" data-dismiss-alert aria-label="Cerrar mensaje">{% icon 'close' %}</button></div>{% endfor %}</div>{% endif %}
-      {% block content %}{% endblock %}
-      <footer class="main-footer"><span>Hotel Duerme Bien <span class="footer-dot">·</span> Gestión interna de pasajeros</span><span>{% icon 'lock' %} Sesión protegida</span></footer>
+
+    <div class="topbar-brand">
+
+      <button
+        class="icon-button mobile-menu"
+        type="button"
+        data-sidebar-toggle
+        aria-label="Abrir navegación"
+        aria-expanded="false"
+      >
+        {% icon 'menu' %}
+      </button>
+
+
+      <a
+        class="brand"
+        href="{% url 'hotel:inicio' %}"
+      >
+
+        <span class="brand-mark">
+          {% icon 'bed' %}
+        </span>
+
+        <span>
+          <strong>
+            Hotel Duerme Bien
+          </strong>
+
+          <small>
+            Sistema de Gestión de Pasajeros
+          </small>
+        </span>
+
+      </a>
+
     </div>
+
+
+    <div class="topbar-right">
+
+      <span class="system-status">
+        <span></span>
+        Sistema operativo
+      </span>
+
+      <span class="topbar-divider"></span>
+
+
+      <div class="user-profile">
+
+        <span class="avatar">
+          {{ user.get_full_name|default:user.username|initials }}
+        </span>
+
+        <span>
+
+          <strong>
+            {{ user.get_full_name|default:user.username }}
+          </strong>
+
+          <small>
+            {{ user.get_rol_display }}
+          </small>
+
+        </span>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <div
+    class="sidebar-scrim"
+    data-sidebar-close
+  ></div>
+
+
+  <aside
+    class="sidebar"
+    aria-label="Navegación principal"
+  >
+
+    <p class="nav-label">
+      ESPACIO DE TRABAJO
+    </p>
+
+
+    <nav>
+
+      {% if user.rol == 'ADMINISTRADOR' %}
+
+        <a
+          class="nav-link {% if nav_active == 'dashboard' %}active{% endif %}"
+          href="{% url 'hotel:dashboard_admin' %}"
+          {% if nav_active == 'dashboard' %}
+            aria-current="page"
+          {% endif %}
+        >
+          {% icon 'home' %}
+          <span>Panel principal</span>
+        </a>
+
+
+        <a
+          class="nav-link {% if nav_active == 'encargados' %}active{% endif %}"
+          href="{% url 'hotel:encargado_list' %}"
+          {% if nav_active == 'encargados' %}
+            aria-current="page"
+          {% endif %}
+        >
+          {% icon 'users' %}
+          <span>
+            Gestión de encargados
+          </span>
+        </a>
+
+      {% else %}
+
+        <a
+          class="nav-link {% if nav_active == 'dashboard' %}active{% endif %}"
+          href="{% url 'hotel:dashboard_encargado' %}"
+          {% if nav_active == 'dashboard' %}
+            aria-current="page"
+          {% endif %}
+        >
+          {% icon 'home' %}
+          <span>Panel principal</span>
+        </a>
+
+
+        <a
+          class="nav-link {% if nav_active == 'habitaciones' %}active{% endif %}"
+          href="{% url 'hotel:habitacion_list' %}"
+          {% if nav_active == 'habitaciones' %}
+            aria-current="page"
+          {% endif %}
+        >
+          {% icon 'bed' %}
+          <span>Habitaciones</span>
+        </a>
+
+
+        <a
+          class="nav-link {% if nav_active == 'pasajeros' %}active{% endif %}"
+          href="{% url 'hotel:pasajero_list' %}"
+          {% if nav_active == 'pasajeros' %}
+            aria-current="page"
+          {% endif %}
+        >
+          {% icon 'users' %}
+          <span>Pasajeros</span>
+        </a>
+
+
+        <a
+          class="nav-link {% if nav_active == 'asignaciones' %}active{% endif %}"
+          href="{% url 'hotel:asignacion_list' %}"
+          {% if nav_active == 'asignaciones' %}
+            aria-current="page"
+          {% endif %}
+        >
+          {% icon 'assignment' %}
+          <span>Asignaciones</span>
+        </a>
+
+
+        <a
+          class="nav-link {% if nav_active == 'ocupacion' %}active{% endif %}"
+          href="{% url 'hotel:ocupacion' %}"
+          {% if nav_active == 'ocupacion' %}
+            aria-current="page"
+          {% endif %}
+        >
+          {% icon 'chart' %}
+          <span>Ocupación</span>
+        </a>
+
+
+        <a
+          class="nav-link {% if nav_active == 'historial' or nav_active == 'historiales' %}active{% endif %}"
+          href="{% url 'hotel:historiales' %}"
+          {% if nav_active == 'historial' or nav_active == 'historiales' %}
+            aria-current="page"
+          {% endif %}
+        >
+          {% icon 'history' %}
+          <span>Historiales</span>
+        </a>
+
+      {% endif %}
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+      <div class="sidebar-note">
+
+        {% icon 'shield' %}
+
+        <div>
+
+          <strong>
+            Acceso protegido
+          </strong>
+
+          <span>
+            {{ user.get_rol_display }}
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <form
+        action="{% url 'hotel:logout' %}"
+        method="post"
+      >
+
+        {% csrf_token %}
+
+        <button
+          type="submit"
+          class="nav-link logout-link"
+        >
+          {% icon 'logout' %}
+          <span>Cerrar sesión</span>
+        </button>
+
+      </form>
+
+
+      <small class="sidebar-footer">
+        Hotel Duerme Bien © {% now 'Y' %}
+      </small>
+
+    </div>
+
+  </aside>
+
+
+  <main
+    class="main"
+    id="main-content"
+  >
+
+    <div class="main-inner">
+
+      <div class="breadcrumbs">
+
+        <a href="{% url 'hotel:inicio' %}">
+          Hotel Duerme Bien
+        </a>
+
+        {% icon 'chevron' %}
+
+        <span>
+          {{ title|default:"Panel principal" }}
+        </span>
+
+      </div>
+
+
+      <section class="page-hero">
+
+        <div>
+
+          <span class="eyebrow">
+
+            {% if user.rol == 'ADMINISTRADOR' %}
+              ADMINISTRACIÓN
+            {% else %}
+              OPERACIÓN DEL HOTEL
+            {% endif %}
+
+          </span>
+
+          <h1>
+            {{ title|default:"Panel principal" }}
+          </h1>
+
+          <p>
+            {{ subtitle|default:"Todo lo que necesitas para una gestión clara y ordenada." }}
+          </p>
+
+        </div>
+
+
+        <img
+          src="{% static 'hotel/img/hotel.svg' %}"
+          alt=""
+          class="hero-illustration"
+        >
+
+      </section>
+
+
+      {% if messages %}
+
+        <div
+          class="messages"
+          aria-live="polite"
+        >
+
+          {% for message in messages %}
+
+            <div
+              class="alert alert-{{ message.tags|default:'info' }}"
+            >
+
+              {% icon 'info' %}
+
+              <span>
+                {{ message }}
+              </span>
+
+              <button
+                class="icon-button"
+                type="button"
+                data-dismiss-alert
+                aria-label="Cerrar mensaje"
+              >
+                {% icon 'close' %}
+              </button>
+
+            </div>
+
+          {% endfor %}
+
+        </div>
+
+      {% endif %}
+
+
+      {% block content %}
+      {% endblock %}
+
+
+      <footer class="main-footer">
+
+        <span>
+          Hotel Duerme Bien
+          <span class="footer-dot">·</span>
+          Gestión interna de pasajeros
+        </span>
+
+        <span>
+          {% icon 'lock' %}
+          Sesión protegida
+        </span>
+
+      </footer>
+
+    </div>
+
   </main>
-  <dialog class="confirm-dialog" data-confirm-dialog><div class="confirm-content"><div class="confirm-icon">{% icon 'info' %}</div><h2 data-confirm-title>Confirmar operación</h2><p data-confirm-message></p></div><div class="form-actions"><button class="btn btn-secondary" type="button" data-confirm-cancel>Cancelar</button><button class="btn btn-primary" type="button" data-confirm-accept>Confirmar</button></div></dialog>
+
+
+  <dialog
+    class="confirm-dialog"
+    data-confirm-dialog
+  >
+
+    <div class="confirm-content">
+
+      <div class="confirm-icon">
+        {% icon 'info' %}
+      </div>
+
+      <h2 data-confirm-title>
+        Confirmar operación
+      </h2>
+
+      <p data-confirm-message></p>
+
+    </div>
+
+
+    <div class="form-actions">
+
+      <button
+        class="btn btn-secondary"
+        type="button"
+        data-confirm-cancel
+      >
+        Cancelar
+      </button>
+
+      <button
+        class="btn btn-primary"
+        type="button"
+        data-confirm-accept
+      >
+        Confirmar
+      </button>
+
+    </div>
+
+  </dialog>
+
 </body>
+
 </html>

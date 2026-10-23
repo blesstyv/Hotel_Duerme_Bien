@@ -1,0 +1,262 @@
+{% extends 'hotel/base.html' %}
+{% load hotel_tags %}
+
+{% block content %}
+
+<div class="split-grid">
+
+    <section class="panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <h2>
+                    {% icon 'user' %}
+                    Pasajero hospedado
+                </h2>
+
+                <p>
+                    Información de la estadía activa.
+                </p>
+
+            </div>
+
+            <span class="badge badge-success badge-dot">
+                Asignado
+            </span>
+
+        </div>
+
+
+        <div class="panel-body">
+
+            <dl class="summary-list">
+
+                <div>
+
+                    <dt>
+                        Nombre completo
+                    </dt>
+
+                    <dd>
+                        {{ pasajero.nombre_completo }}
+                    </dd>
+
+                </div>
+
+
+                <div>
+
+                    <dt>
+                        RUT
+                    </dt>
+
+                    <dd>
+                        {{ pasajero.rut }}
+                    </dd>
+
+                </div>
+
+
+                <div>
+
+                    <dt>
+                        Habitación
+                    </dt>
+
+                    <dd>
+                        {{ hospedaje.detalle.habitacion.numero }}
+                    </dd>
+
+                </div>
+
+
+                <div>
+
+                    <dt>
+                        Asignación
+                    </dt>
+
+                    <dd>
+
+                        <a
+                            class="text-link"
+                            href="{% url 'hotel:asignacion_detalle' hospedaje.detalle.asignacion.pk %}"
+                        >
+                            #{{ hospedaje.detalle.asignacion.pk }}
+                        </a>
+
+                    </dd>
+
+                </div>
+
+
+                <div>
+
+                    <dt>
+                        Rol dentro del grupo
+                    </dt>
+
+                    <dd>
+
+                        {% if pasajero.pk == hospedaje.detalle.asignacion.responsable_id %}
+
+                            <span class="badge badge-purple">
+                                {% icon 'crown' %}
+                                Responsable
+                            </span>
+
+                        {% else %}
+
+                            Pasajero
+
+                        {% endif %}
+
+                    </dd>
+
+                </div>
+
+            </dl>
+
+
+            <div class="form-note">
+
+                {% icon 'shield' %}
+
+                <span>
+                    Durante una estadía activa se mantienen
+                    protegidos el nombre, RUT, habitación,
+                    costo y datos de la asignación.
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="panel">
+
+        <div class="panel-heading">
+
+            <div>
+
+                <h2>
+                    {% icon 'edit' %}
+                    Editar datos de contacto
+                </h2>
+
+                <p>
+                    Puede actualizar teléfono y correo sin
+                    modificar la asignación activa.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <form method="post">
+
+            {% csrf_token %}
+
+            <div class="panel-body">
+
+                {% if form.non_field_errors %}
+
+                    <div class="alert alert-error">
+
+                        {% icon 'info' %}
+
+                        <div>
+
+                            {% for error in form.non_field_errors %}
+
+                                <p>
+                                    {{ error }}
+                                </p>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                {% endif %}
+
+
+                {% for field in form %}
+
+                    <div class="form-field">
+
+                        <label for="{{ field.id_for_label }}">
+
+                            {{ field.label }}
+
+                            {% if field.field.required %}
+
+                                <span class="required-mark">
+                                    *
+                                </span>
+
+                            {% endif %}
+
+                        </label>
+
+
+                        {{ field }}
+
+
+                        {% if field.help_text %}
+
+                            <p class="help-text">
+                                {{ field.help_text }}
+                            </p>
+
+                        {% endif %}
+
+
+                        {% for error in field.errors %}
+
+                            <p class="field-error">
+                                {{ error }}
+                            </p>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <div class="form-actions">
+
+                <a
+                    class="btn btn-secondary"
+                    href="{% url 'hotel:pasajeros_asignados' %}"
+                >
+                    Cancelar
+                </a>
+
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    {% icon 'check' %}
+                    Guardar cambios
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,19 +1,27 @@
 """
-Formularios de aplicación:
-cada campo editable se declara explícitamente.
+Formularios de aplicación.
+
+Cada campo editable se declara explícitamente
+y las reglas críticas se vuelven a validar
+en el servidor.
 """
 
 from django import forms
-from django.contrib.auth import password_validation
-from django.contrib.auth.forms import UserCreationForm
-from django.core.exceptions import ValidationError
+from django.contrib.auth import (
+    password_validation,
+)
+from django.contrib.auth.forms import (
+    UserCreationForm,
+)
+from django.core.exceptions import (
+    ValidationError,
+)
 
 from .models import (
     Habitacion,
     Pasajero,
     Usuario,
 )
-
 from .validators import (
     normalizar_rut,
     validate_safe_id_list,
@@ -32,7 +40,7 @@ class SpanishFormMixin:
             **kwargs,
         )
 
-        for name, field in self.fields.items():
+        for field in self.fields.values():
             field.widget.attrs.setdefault(
                 "class",
                 "input",
@@ -40,7 +48,9 @@ class SpanishFormMixin:
 
             field.error_messages[
                 "required"
-            ] = "Este campo es obligatorio."
+            ] = (
+                "Este campo es obligatorio."
+            )
 
             if isinstance(
                 field,
@@ -49,21 +59,22 @@ class SpanishFormMixin:
                 field.error_messages[
                     "invalid"
                 ] = (
-                    "Ingrese un correo electrónico válido."
+                    "Ingrese un correo "
+                    "electrónico válido."
                 )
 
 
 class SafeModelChoiceField(
     forms.ModelChoiceField
 ):
-    """
-    ModelChoiceField que rechaza IDs
-    manipulados antes de consultar la BD.
-    """
-
-    def clean(self, value):
+    def clean(
+        self,
+        value,
+    ):
         if value in self.empty_values:
-            return super().clean(value)
+            return super().clean(
+                value
+            )
 
         try:
             safe_value = (
@@ -71,12 +82,14 @@ class SafeModelChoiceField(
                     value
                 )
             )
-
         except ValidationError:
             raise ValidationError(
                 self.error_messages.get(
                     "invalid_choice",
-                    "Seleccione una opción válida.",
+                    (
+                        "Seleccione una "
+                        "opción válida."
+                    ),
                 ),
                 code="invalid_choice",
             )
@@ -89,14 +102,14 @@ class SafeModelChoiceField(
 class SafeModelMultipleChoiceField(
     forms.ModelMultipleChoiceField
 ):
-    """
-    ModelMultipleChoiceField que valida
-    el rango de PK antes de ejecutar SQL.
-    """
-
-    def clean(self, value):
+    def clean(
+        self,
+        value,
+    ):
         if not value:
-            return super().clean(value)
+            return super().clean(
+                value
+            )
 
         try:
             safe_values = (
@@ -104,12 +117,14 @@ class SafeModelMultipleChoiceField(
                     value
                 )
             )
-
         except ValidationError:
             raise ValidationError(
                 self.error_messages.get(
                     "invalid_choice",
-                    "Seleccione opciones válidas.",
+                    (
+                        "Seleccione "
+                        "opciones válidas."
+                    ),
                 ),
                 code="invalid_choice",
             )
@@ -178,14 +193,16 @@ class EncargadoCreationForm(
         help_texts = {
             "username":
                 "Hasta 150 caracteres. "
-                "Letras, números y @ . + - _."
+                "Letras, números y "
+                "@ . + - _."
         }
 
         error_messages = {
             "username": {
                 "unique":
                     "Ya existe una cuenta "
-                    "con este nombre de usuario."
+                    "con este nombre "
+                    "de usuario."
             }
         }
 
@@ -213,7 +230,9 @@ class EncargadoCreationForm(
 
         self.fields[
             "password2"
-        ].label = "Confirmar contraseña"
+        ].label = (
+            "Confirmar contraseña"
+        )
 
         self.fields[
             "password1"
@@ -231,15 +250,21 @@ class EncargadoCreationForm(
         username = (
             self.cleaned_data[
                 "username"
-            ].strip()
+            ]
+            .strip()
         )
 
-        if Usuario.objects.filter(
-            username__iexact=username
-        ).exists():
+        if (
+            Usuario.objects
+            .filter(
+                username__iexact=username
+            )
+            .exists()
+        ):
             raise ValidationError(
                 "Ya existe una cuenta "
-                "con este nombre de usuario."
+                "con este nombre "
+                "de usuario."
             )
 
         return username
@@ -276,7 +301,8 @@ class EncargadoEditForm(
         strip=False,
         help_text=(
             "Deje ambos campos vacíos "
-            "para conservar la contraseña actual."
+            "para conservar la "
+            "contraseña actual."
         ),
         widget=forms.PasswordInput(
             attrs={
@@ -287,7 +313,9 @@ class EncargadoEditForm(
     )
 
     password2 = forms.CharField(
-        label="Confirmar nueva contraseña",
+        label=(
+            "Confirmar nueva contraseña"
+        ),
         required=False,
         strip=False,
         widget=forms.PasswordInput(
@@ -322,14 +350,16 @@ class EncargadoEditForm(
         help_texts = {
             "username":
                 "Hasta 150 caracteres. "
-                "Letras, números y @ . + - _."
+                "Letras, números y "
+                "@ . + - _."
         }
 
         error_messages = {
             "username": {
                 "unique":
                     "Ya existe una cuenta "
-                    "con este nombre de usuario."
+                    "con este nombre "
+                    "de usuario."
             }
         }
 
@@ -355,17 +385,24 @@ class EncargadoEditForm(
         username = (
             self.cleaned_data[
                 "username"
-            ].strip()
+            ]
+            .strip()
         )
 
-        if Usuario.objects.filter(
-            username__iexact=username
-        ).exclude(
-            pk=self.instance.pk
-        ).exists():
+        if (
+            Usuario.objects
+            .filter(
+                username__iexact=username
+            )
+            .exclude(
+                pk=self.instance.pk
+            )
+            .exists()
+        ):
             raise ValidationError(
                 "Ya existe una cuenta "
-                "con este nombre de usuario."
+                "con este nombre "
+                "de usuario."
             )
 
         return username
@@ -385,7 +422,10 @@ class EncargadoEditForm(
             if password1 != password2:
                 self.add_error(
                     "password2",
-                    "Las contraseñas no coinciden.",
+                    (
+                        "Las contraseñas "
+                        "no coinciden."
+                    ),
                 )
 
             elif password1:
@@ -413,7 +453,6 @@ class EncargadoEditForm(
                         password1,
                         candidate,
                     )
-
                 except ValidationError as error:
                     self.add_error(
                         "password1",
@@ -456,6 +495,18 @@ class HabitacionForm(
     SpanishFormMixin,
     forms.ModelForm,
 ):
+    vista = forms.ChoiceField(
+        label="Vista",
+        choices=Habitacion.Vista.choices,
+        required=False,
+        initial=Habitacion.Vista.CIUDAD,
+        help_text=(
+            "Seleccione si la habitación "
+            "tiene vista al mar o "
+            "vista a la ciudad."
+        ),
+    )
+
     class Meta:
         model = Habitacion
 
@@ -463,22 +514,29 @@ class HabitacionForm(
             "numero",
             "capacidad",
             "orientacion",
+            "vista",
         )
 
         labels = {
             "numero":
                 "Número de habitación",
             "capacidad":
-                "Capacidad exacta de pasajeros",
+                "Capacidad exacta "
+                "de pasajeros",
             "orientacion":
                 "Orientación",
+            "vista":
+                "Vista",
         }
 
         help_texts = {
             "capacidad":
-                "Al asignar, debe alojarse "
-                "exactamente esta cantidad "
-                "de pasajeros."
+                "Al asignar, debe "
+                "alojarse exactamente "
+                "esta cantidad de pasajeros.",
+            "vista":
+                "Seleccione la vista "
+                "principal de la habitación.",
         }
 
         widgets = {
@@ -487,15 +545,18 @@ class HabitacionForm(
                     attrs={
                         "min": 1,
                     }
-                )
+                ),
+            "orientacion":
+                forms.Select(),
         }
 
         error_messages = {
             "numero": {
                 "unique":
-                    "Ya existe una habitación "
-                    "con este número, incluso "
-                    "si está inactiva."
+                    "Ya existe una "
+                    "habitación con este "
+                    "número, incluso si "
+                    "está inactiva."
             }
         }
 
@@ -503,14 +564,20 @@ class HabitacionForm(
         numero = (
             self.cleaned_data[
                 "numero"
-            ].strip()
+            ]
+            .strip()
         )
 
-        if Habitacion.objects.filter(
-            numero__iexact=numero
-        ).exclude(
-            pk=self.instance.pk
-        ).exists():
+        if (
+            Habitacion.objects
+            .filter(
+                numero__iexact=numero
+            )
+            .exclude(
+                pk=self.instance.pk
+            )
+            .exists()
+        ):
             raise ValidationError(
                 "Ya existe una habitación "
                 "con este número, incluso "
@@ -551,15 +618,41 @@ class HabitacionForm(
                 .first()
             )
 
-            if capacidad != previous:
+            if (
+                capacidad
+                !=
+                previous
+            ):
                 raise ValidationError(
-                    "No se puede cambiar la "
-                    "capacidad de una habitación "
-                    "ocupada. Registre la salida "
+                    "No se puede cambiar "
+                    "la capacidad de una "
+                    "habitación ocupada. "
+                    "Registre la salida "
                     "primero."
                 )
 
         return capacidad
+
+    def clean_vista(self):
+        vista = (
+            self.cleaned_data.get(
+                "vista"
+            )
+            or
+            Habitacion.Vista.CIUDAD
+        )
+
+        valid = {
+            Habitacion.Vista.MAR,
+            Habitacion.Vista.CIUDAD,
+        }
+
+        if vista not in valid:
+            raise ValidationError(
+                "Seleccione una vista válida."
+            )
+
+        return vista
 
 
 class PasajeroForm(
@@ -600,7 +693,8 @@ class PasajeroForm(
             "telefono":
                 "Teléfono (opcional)",
             "correo":
-                "Correo electrónico (opcional)",
+                "Correo electrónico "
+                "(opcional)",
         }
 
         help_texts = {
@@ -643,11 +737,16 @@ class PasajeroForm(
             ]
         )
 
-        if Pasajero.objects.filter(
-            rut=rut
-        ).exclude(
-            pk=self.instance.pk
-        ).exists():
+        if (
+            Pasajero.objects
+            .filter(
+                rut=rut
+            )
+            .exclude(
+                pk=self.instance.pk
+            )
+            .exists()
+        ):
             raise ValidationError(
                 "Este RUT ya está registrado. "
                 "Utilice el pasajero existente."
@@ -664,8 +763,8 @@ class PasajeroForm(
 
         if len(nombre) < 3:
             raise ValidationError(
-                "Ingrese el nombre completo "
-                "del pasajero."
+                "Ingrese el nombre "
+                "completo del pasajero."
             )
 
         return nombre
@@ -685,7 +784,9 @@ class AsignacionForm(
     rooms = SafeModelMultipleChoiceField(
         label="Habitaciones",
         queryset=Habitacion.objects.none(),
-        widget=forms.CheckboxSelectMultiple,
+        widget=(
+            forms.CheckboxSelectMultiple
+        ),
         error_messages={
             "invalid_choice":
                 "Seleccione únicamente "
@@ -752,14 +853,6 @@ class AsignacionForm(
             "responsable"
         ].queryset = passengers
 
-        # Se crean campos para todas las
-        # habitaciones disponibles.
-        #
-        # El servidor solamente utiliza
-        # la distribución de aquellas
-        # habitaciones que fueron
-        # seleccionadas.
-
         for room in rooms:
             name = (
                 f"pasajeros_{room.pk}"
@@ -767,20 +860,22 @@ class AsignacionForm(
 
             self.fields[
                 name
-            ] = SafeModelMultipleChoiceField(
-                label=(
-                    "Pasajeros · "
-                    f"Habitación "
-                    f"{room.numero}"
-                ),
-                queryset=passengers,
-                required=False,
-                error_messages={
-                    "invalid_choice":
-                        "Seleccione pasajeros "
-                        "registrados que no "
-                        "estén hospedados."
-                },
+            ] = (
+                SafeModelMultipleChoiceField(
+                    label=(
+                        "Pasajeros · "
+                        f"Habitación "
+                        f"{room.numero}"
+                    ),
+                    queryset=passengers,
+                    required=False,
+                    error_messages={
+                        "invalid_choice":
+                            "Seleccione pasajeros "
+                            "registrados que no "
+                            "estén hospedados."
+                    },
+                )
             )
 
     def clean(self):
@@ -810,15 +905,17 @@ class AsignacionForm(
                 )
             )
 
-            if len(
-                raw_rooms
-            ) != len(
-                set(raw_rooms)
+            if (
+                len(raw_rooms)
+                !=
+                len(set(raw_rooms))
             ):
                 self.add_error(
                     "rooms",
-                    "No repita una habitación "
-                    "en la distribución.",
+                    (
+                        "No repita una habitación "
+                        "en la distribución."
+                    ),
                 )
 
             for room in selected:
@@ -841,15 +938,17 @@ class AsignacionForm(
                     )
                 )
 
-                if len(
-                    raw_ids
-                ) != len(
-                    set(raw_ids)
+                if (
+                    len(raw_ids)
+                    !=
+                    len(set(raw_ids))
                 ):
                     self.add_error(
                         name,
-                        "No repita un pasajero "
-                        "en la misma habitación.",
+                        (
+                            "No repita un pasajero "
+                            "en la misma habitación."
+                        ),
                     )
 
                 people = data.get(
@@ -890,10 +989,10 @@ class AsignacionForm(
                         ),
                     )
 
-            if len(
-                all_ids
-            ) != len(
-                set(all_ids)
+            if (
+                len(all_ids)
+                !=
+                len(set(all_ids))
             ):
                 raise ValidationError(
                     "Un pasajero no puede "
@@ -913,10 +1012,12 @@ class AsignacionForm(
             ):
                 self.add_error(
                     "responsable",
-                    "El responsable debe "
-                    "pertenecer al grupo "
-                    "distribuido en las "
-                    "habitaciones.",
+                    (
+                        "El responsable debe "
+                        "pertenecer al grupo "
+                        "distribuido en las "
+                        "habitaciones."
+                    ),
                 )
 
         data[
@@ -926,6 +1027,6 @@ class AsignacionForm(
         return data
 
 
-# Alias legible para integraciones que utilizan
-# el nombre genérico del módulo.
-EncargadoForm = EncargadoCreationForm
+EncargadoForm = (
+    EncargadoCreationForm
+)
