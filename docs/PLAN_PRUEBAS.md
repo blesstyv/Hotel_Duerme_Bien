@@ -28,7 +28,7 @@ La asociación definitiva a métodos automatizados se encuentra en `TRACEABILITY
 | CP-08 | Crear cuenta con username duplicado | Error de validación; no duplicar usuario. | RF-03, RNF-08 |
 | CP-09 | Editar nombre/contacto/contraseña de Encargado | Cambios válidos persistidos; sin alterar su rol a Administrador. | RF-04 |
 | CP-10 | Desactivar y activar Encargado | Alternar acceso; la cuenta y su actividad se conservan. | RF-04 |
-| CP-11 | Registrar habitación válida | Número único, orientación y capacidad; estado Vacante. | RF-05, RN-10 |
+| CP-11 | Registrar habitación válida (número solo con dígitos) | Número único, orientación y capacidad; estado Vacante. | RF-05, RN-10 |
 | CP-12 | Número de habitación duplicado | Rechazo, incluso si el registro original está inactivo. | RF-05, RN-05 |
 | CP-13 | Capacidad cero/negativa | Rechazo de formulario y restricción de integridad. | RF-05, RNF-08 |
 | CP-14 | Editar habitación con historia | Cambiar datos actuales; conservar snapshots históricos. | RF-06 |
@@ -40,8 +40,8 @@ La asociación definitiva a métodos automatizados se encuentra en `TRACEABILITY
 | CP-20 | Modificar pasajero con historia | Actualizar registro actual sin cambiar la estadía histórica. | RF-09 |
 | CP-21 | Buscar pasajero por RUT o nombre/apellido | Recuperar coincidencias correctas. | RF-10 |
 | CP-22 | Capacidad 3 con 3 pasajeros disponibles | Crear asignación, detalles e historial activo. | RF-11/12 |
-| CP-23 | Capacidad 3 con 2 pasajeros | Rechazar; no crear asignación ni ocupar ninguna habitación. | RF-12, RN-02 |
-| CP-24 | Capacidad 3 con 4 pasajeros | Mismo rechazo completo por exceso. | RF-12, RN-02 |
+| CP-23 | Capacidad 3 con 2 pasajeros (ocupación parcial) | Aceptar: no se exige completar la capacidad; la habitación queda Ocupada. | RF-12 (cambio U2) |
+| CP-24 | Capacidad 3 con 4 pasajeros | Rechazo completo por exceder la capacidad máxima; no se ocupa ninguna habitación. | RF-12 |
 | CP-25 | Seleccionar habitación ocupada | Rechazo por disponibilidad actual. | RF-11, RN-03 |
 | CP-26 | Seleccionar habitación inexistente/inactiva | Rechazo; no crear asignación. | RF-11, RF-24 |
 | CP-27 | Pasajero inexistente | Rechazo antes de crear registros. | RF-11, RN-04 |
@@ -49,12 +49,12 @@ La asociación definitiva a métodos automatizados se encuentra en `TRACEABILITY
 | CP-29 | Responsable ajeno al grupo | Rechazo; debe ser uno de los pasajeros distribuidos. | RF-22, RN-17 |
 | CP-30 | Responsable válido | Registrar una persona responsable del grupo y mostrarla. | RF-22 |
 | CP-31 | Cinco pasajeros en habitaciones 3+2 | Crear una contratación con dos detalles y cinco hospedajes. | RF-21 |
-| CP-32 | Grupo multihabitación con una capacidad inválida | Rollback completo para todas las habitaciones. | RF-12/21 |
+| CP-32 | Grupo multihabitación con una habitación que excede su capacidad | Rollback completo para todas las habitaciones. | RF-12/21 |
 | CP-33 | Repetir pasajero en una o varias habitaciones | Rechazo; no contar dos veces ni asignar parcialmente. | RF-21, RNF-08 |
 | CP-34 | Enviar costo, fecha, estado o usuario manipulados | Ignorar campos no editables; calcular y registrar en backend. | RF-13/14 |
-| CP-35 | Cinco pasajeros | Costo de grupo $200.000; sin ingreso manual ni cálculo por noches. | RF-13, RN-01 |
+| CP-35 | Cinco pasajeros durante una noche | Costo de grupo $200.000, calculado sin ingreso manual. | RF-13 |
 | CP-36 | Crear asignación | Timestamp automático y usuario real que ejecuta. | RF-14, RNF-09 |
-| CP-37 | Confirmar operación exacta | Todas sus habitaciones cambian a Ocupada. | RF-15 |
+| CP-37 | Confirmar una asignación válida | Todas sus habitaciones cambian a Ocupada. | RF-15 |
 | CP-38 | Registrar salida multihabitación | Cierre con fecha/usuario; todas las habitaciones Vacantes. | RF-16 |
 | CP-39 | Liberar asignación ya finalizada | Rechazo de doble cierre; conservar fecha de salida previa. | RF-16, RNF-08 |
 | CP-40 | Panel de ocupación | Totales y porcentaje calculados de habitaciones activas. | RF-17 |
@@ -65,6 +65,14 @@ La asociación definitiva a métodos automatizados se encuentra en `TRACEABILITY
 | CP-45 | Baja lógica de habitación vacante con historia | Marcar inactiva, retirar disponibilidad y conservar relaciones. | RF-24 |
 | CP-46 | Borrar/asignar sobre historial protegido | Rechazo desde la aplicación/gestores; conservar registros anteriores. | RN-12 |
 | CP-47 | Cerrar sesión por POST | Invalidar sesión; siguiente ruta protegida exige login. | RF-20 |
+| CP-48 | Habitación con letras o símbolos en el número (`10A`, `A10`, `10-1`) | Rechazo con mensaje claro; no se crea ni se edita la habitación. | RF-05 (cambio U2) |
+| CP-49 | Asignar sin fecha de inicio o sin fecha de término | Rechazo: ambas fechas son obligatorias; no se crea la asignación. | RF-13 (cambio U2) |
+| CP-50 | Fecha de término igual o anterior al inicio, inicio anterior a hoy o estadía de más de 365 noches | Rechazo con mensaje específico en el campo de fecha. | RF-13 (cambio U2) |
+| CP-51 | Una persona durante 1, 2 y 3 noches | Costo de $40.000, $80.000 y $120.000 respectivamente. | RF-13 (cambio U2) |
+| CP-52 | Grupo de 4 personas durante 2 noches en varias habitaciones | Costo de 4 × 2 × $40.000 = $320.000; el costo por habitación suma el total. | RF-13, RF-21 |
+| CP-53 | Cambiar las fechas después de la vista previa | La confirmación se rechaza hasta revisar el resumen actualizado. | RF-13, RNF-08 |
+| CP-54 | Habitación sin ningún pasajero seleccionado | Rechazo; cada habitación elegida necesita al menos un pasajero. | RF-12 |
+| CP-55 | Una persona en una habitación de 4 | Aceptar; costo de una persona por las noches indicadas. | RF-12 (cambio U2) |
 
 ## Catálogo de seguridad y operación
 
@@ -73,7 +81,7 @@ La asociación definitiva a métodos automatizados se encuentra en `TRACEABILITY
 | CS-01 | POST protegido sin CSRF usando cliente con comprobación activada | 403 y ausencia de cambios. |
 | CS-02 | Nombre con etiquetas HTML | Contenido escapado en salida, sin ejecución de script. |
 | CS-03 | Enviar `rol`, `is_staff`, `is_superuser` en gestión de encargados | Sin escalamiento de privilegios. |
-| CS-04 | Repetir credenciales inválidas | Bloqueo temporal según configuración y mensaje controlado. |
+| CS-04 | Tres intentos de inicio de sesión fallidos seguidos | Bloqueo de 5 minutos, incluso con la contraseña correcta; mensaje con los intentos restantes y aviso de bloqueo; el contador se reinicia al vencer. |
 | CS-05 | Sesión supera tiempo de inactividad | Logout y necesidad de reautenticación. |
 | CS-06 | Usuario desactivado con sesión abierta | No permite continuar las operaciones. |
 | CS-07 | Consultar hash guardado | No coincide con contraseña; `check_password` verifica contraseña válida. |
