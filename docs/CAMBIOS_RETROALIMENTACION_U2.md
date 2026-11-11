@@ -20,3 +20,9 @@ y la regla vigente es la descrita aquí.
 - Las habitaciones existentes con letras en el número (si las hubiera) no se modifican, pero no podrán guardarse sin corregirlas.
 - Las asignaciones nuevas de la demo (`seed_demo`) tienen 1 a 3 noches.
 - La salida anticipada conserva el costo acordado al ingreso.
+
+## Ajuste posterior: formato de las fechas de la estadía
+
+- **Problema:** con el selector nativo de fecha (`type="date"`) no se podían escribir los números directamente; el campo de término quedaba vacío y el de inicio se corrompía, porque el recálculo se disparaba con cada dígito.
+- **Solución:** los campos de inicio y término ahora son de texto con formato `dd/mm/aaaa`, con máscara que agrega las barras al escribir solo números. El servidor acepta `dd/mm/aaaa` (y también `aaaa-mm-dd` por compatibilidad) y mantiene las mismas validaciones: obligatorias, inicio no anterior a hoy, mínimo una noche y máximo 365.
+- **Archivos:** `hotel/forms.py`, `hotel/views.py`, `hotel/templates/hotel/asignacion_form.html`, `hotel/static/hotel/js/app.js`, `hotel/tests/test_retroalimentacion_u2.py` (3 pruebas nuevas; 162 en total).

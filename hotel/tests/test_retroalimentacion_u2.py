@@ -326,3 +326,49 @@ class CapacidadParcialTests(HotelTestCase):
         exceso = self.client.post(url("asignacion_crear"), {**base, f"pasajeros_{self.room2.pk}": [str(p.pk) for p in self.people[:3]]})
         self.assertIsNone(exceso.context["preview"])
         self.assertTrue(exceso.context["form"].errors)
+
+
+class FormatoFechaEstadiaTests(HotelTestCase):
+    """Las fechas se escriben a mano como dd/mm/aaaa."""
+
+    def setUp(self):
+        self.client.force_login(self.encargado)
+
+    def datos(self, inicio, termino):
+        return {
+            "rooms": [str(self.room1.pk)],
+            f"pasajeros_{self.room1.pk}": [str(self.people[0].pk)],
+            "responsable": str(self.people[0].pk),
+            "fecha_inicio": inicio,
+            "fecha_termino": termino,
+            "action": "preview",
+        }
+
+    def test_formulario_muestra_campos_de_texto_dd_mm_aaaa(self):
+        response = self.client.get(url("asignacion_crear"))
+        hoy = timezone.localdate().strftime("%d/%m/%Y")
+        self.assertContains(response, 'id="id_fecha_inicio"')
+        self.assertContains(response, f'value="{hoy}"')
+        self.assertContains(response, 'placeholder="dd/mm/aaaa"')
+        self.assertNotContains(response, 'type="date"')
+
+    def test_acepta_fechas_escritas_dd_mm_aaaa(self):
+        inicio, termino = estadia(2)
+        response = self.client.post(
+            url("asignacion_crear"),
+            self.datos(inicio.strftime("%d/%m/%Y"), termino.strftime("%d/%m/%Y")),
+        )
+        self.assertFalse(response.context["form"].errors)
+        self.assertEqual(response.context["preview"]["noches"], 2)
+        self.assertEqual(response.context["preview"]["costo_total"], 80000)
+
+    def test_rechaza_fecha_inexistente_o_incompleta(self):
+        inicio, _ = estadia(1)
+        for malo in ("31/02/2027", "1/1/27", "12/2026", "ab/cd/efgh"):
+            with self.subTest(malo=malo):
+                response = self.client.post(
+                    url("asignacion_crear"),
+                    self.datos(inicio.strftime("%d/%m/%Y"), malo),
+                )
+                self.assertTrue(response.context["form"].errors.get("fecha_termino"))
+                self.assertIsNone(response.context["preview"])

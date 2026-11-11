@@ -91,18 +91,22 @@
           </label>
 
           <input
-            type="date"
+            type="text"
             class="input"
             id="id_fecha_inicio"
             name="fecha_inicio"
-            value="{{ form.fecha_inicio.value|default_if_none:today }}"
-            min="{{ today }}"
+            value="{{ form.fecha_inicio.value|default_if_none:today_display }}"
+            placeholder="dd/mm/aaaa"
+            inputmode="numeric"
+            maxlength="10"
+            autocomplete="off"
+            data-date-mask
             required
             data-stay-start
           >
 
           <div class="help-text">
-            No puede ser anterior a hoy.
+            Formato dd/mm/aaaa. No puede ser anterior a hoy.
           </div>
 
         </div>
@@ -116,18 +120,22 @@
           </label>
 
           <input
-            type="date"
+            type="text"
             class="input"
             id="id_fecha_termino"
             name="fecha_termino"
             value="{{ form.fecha_termino.value|default_if_none:'' }}"
-            min="{{ today }}"
+            placeholder="dd/mm/aaaa"
+            inputmode="numeric"
+            maxlength="10"
+            autocomplete="off"
+            data-date-mask
             required
             data-stay-end
           >
 
           <div class="help-text">
-            Debe ser posterior al inicio
+            Formato dd/mm/aaaa. Debe ser posterior al inicio
             (mínimo una noche).
           </div>
 

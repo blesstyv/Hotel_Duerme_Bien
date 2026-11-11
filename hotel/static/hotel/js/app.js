@@ -711,25 +711,72 @@ document.addEventListener(
 
     const rate = Number(caption.dataset.rate) || 0;
 
+    // Acepta dd/mm/aaaa (formato del formulario)
+    // o aaaa-mm-dd. Devuelve null si esta incompleta
+    // o no es una fecha real.
     function parse(value) {
-      const parts = value.split("-").map(Number);
+      const text = (value || "").trim();
+      let d, m, y;
+      let match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(text);
 
-      if (parts.length !== 3 || parts.some(isNaN)) {
+      if (match) {
+        d = Number(match[1]);
+        m = Number(match[2]);
+        y = Number(match[3]);
+      } else {
+        match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+
+        if (!match) {
+          return null;
+        }
+
+        y = Number(match[1]);
+        m = Number(match[2]);
+        d = Number(match[3]);
+      }
+
+      const time = Date.UTC(y, m - 1, d);
+      const check = new Date(time);
+
+      if (
+        y < 1000
+        || check.getUTCFullYear() !== y
+        || check.getUTCMonth() !== m - 1
+        || check.getUTCDate() !== d
+      ) {
         return null;
       }
 
-      return Date.UTC(parts[0], parts[1] - 1, parts[2]);
+      return time;
+    }
+
+    // Mascara: inserta las barras mientras se
+    // escriben solo digitos (ddmmaaaa).
+    function mask(input) {
+      input.addEventListener("input", function () {
+        const digits = input.value
+          .replace(/\D/g, "")
+          .slice(0, 8);
+
+        let out = digits.slice(0, 2);
+
+        if (digits.length > 2) {
+          out += "/" + digits.slice(2, 4);
+        }
+
+        if (digits.length > 4) {
+          out += "/" + digits.slice(4);
+        }
+
+        input.value = out;
+        update();
+      });
     }
 
     function update() {
 
       const from = parse(start.value);
       const to = parse(end.value);
-
-      if (from !== null) {
-        const next = new Date(from + 86400000);
-        end.min = next.toISOString().slice(0, 10);
-      }
 
       if (from === null || to === null) {
         caption.textContent =
@@ -754,6 +801,9 @@ document.addEventListener(
         + (nights * rate).toLocaleString("es-CL")
         + " CLP por pasajero.";
     }
+
+    mask(start);
+    mask(end);
 
     start.addEventListener("change", update);
     end.addEventListener("change", update);

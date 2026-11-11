@@ -790,6 +790,13 @@ class PasajeroForm(
         return nombre
 
 
+
+FORMATOS_FECHA_ESTADIA = [
+    "%d/%m/%Y",
+    "%d-%m-%Y",
+    "%Y-%m-%d",
+]
+
 class AsignacionForm(
     SpanishFormMixin,
     forms.Form,
@@ -804,10 +811,17 @@ class AsignacionForm(
 
     fecha_inicio = forms.DateField(
         label="Inicio de la estadía",
+        input_formats=FORMATOS_FECHA_ESTADIA,
         widget=forms.DateInput(
-            format="%Y-%m-%d",
+            format="%d/%m/%Y",
             attrs={
-                "type": "date",
+                "type": "text",
+                "inputmode": "numeric",
+                "placeholder": "dd/mm/aaaa",
+                "maxlength": "10",
+                "autocomplete": "off",
+                "pattern": r"\d{2}/\d{2}/\d{4}",
+                "data-date-mask": "",
             },
         ),
         error_messages={
@@ -822,10 +836,17 @@ class AsignacionForm(
 
     fecha_termino = forms.DateField(
         label="Término de la estadía",
+        input_formats=FORMATOS_FECHA_ESTADIA,
         widget=forms.DateInput(
-            format="%Y-%m-%d",
+            format="%d/%m/%Y",
             attrs={
-                "type": "date",
+                "type": "text",
+                "inputmode": "numeric",
+                "placeholder": "dd/mm/aaaa",
+                "maxlength": "10",
+                "autocomplete": "off",
+                "pattern": r"\d{2}/\d{2}/\d{4}",
+                "data-date-mask": "",
             },
         ),
         error_messages={

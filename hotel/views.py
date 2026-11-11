@@ -413,7 +413,7 @@ def asignacion_crear(request):
     # El frontend recibe errores de todos los campos, incluidos los controles
     # de distribución que se renderizan manualmente.
     errors = [message for field_errors in form.errors.values() for message in field_errors] if form.is_bound else []
-    return render(request, "hotel/asignacion_form.html", {"form": form, "errors": errors, "available_rooms": rooms, "passengers": passengers, "habitaciones_disponibles": rooms, "pasajeros_disponibles": passengers, "selected_rooms": selected_rooms, "selected_by_room": selected_by_room, "selected_responsable": request.POST.get("responsable", ""), "today": timezone.localdate().isoformat(), "tarifa": TARIFA_PASAJERO, "max_noches": MAX_NOCHES_ESTADIA, "preview": preview, "preview_token": preview_token, "title": "Nueva asignación", "subtitle": "Distribuya el grupo y revise el resumen antes de confirmar", "nav_active": "asignaciones"})
+    return render(request, "hotel/asignacion_form.html", {"form": form, "errors": errors, "available_rooms": rooms, "passengers": passengers, "habitaciones_disponibles": rooms, "pasajeros_disponibles": passengers, "selected_rooms": selected_rooms, "selected_by_room": selected_by_room, "selected_responsable": request.POST.get("responsable", ""), "today": timezone.localdate().isoformat(), "today_display": timezone.localdate().strftime("%d/%m/%Y"), "tarifa": TARIFA_PASAJERO, "max_noches": MAX_NOCHES_ESTADIA, "preview": preview, "preview_token": preview_token, "title": "Nueva asignación", "subtitle": "Distribuya el grupo y revise el resumen antes de confirmar", "nav_active": "asignaciones"})
 
 
 @encargado_required
