@@ -265,47 +265,25 @@
 
 
 /* =========================================================
-   FOTO REAL DEL HOTEL (la imagen es cuadrada de 736 px:
-   en los paneles se muestra a un costado, sin estirarla)
+   FOTO REAL DEL HOTEL: solo la imagen, sin recuadros encima
    ========================================================= */
 
 .hotel-banner:has(img[src$=".jpg"]) {
-    display: grid;
-    grid-template-columns: minmax(240px, 360px) 1fr;
-    align-items: stretch;
-    background: #fff;
+    background: none;
+    border: 0;
+    box-shadow: 0 6px 22px rgba(20, 33, 61, .14);
 }
 
 .hotel-banner:has(img[src$=".jpg"]) img {
-    height: 100%;
-    min-height: 210px;
-    max-height: 250px;
+    height: clamp(220px, 29vw, 420px);
     object-fit: cover;
-    object-position: center 35%;
+    object-position: center 48%;
 }
 
 .hotel-banner:has(img[src$=".jpg"]) figcaption {
-    position: static;
-    justify-content: center;
-    gap: 6px;
-    padding: 24px 32px;
-    background: linear-gradient(135deg, #ffe6ea 0%, #fff8f2 100%);
-    color: #17233c;
-    border-radius: 0;
-    font-size: 14px;
-}
-
-.hotel-banner:has(img[src$=".jpg"]) figcaption strong {
-    font-size: 24px;
+    display: none;
 }
 
 .login-story img.login-hotel-image[src$=".jpg"] {
-    object-position: center 40%;
-}
-
-@media (max-width: 760px) {
-    .hotel-banner:has(img[src$=".jpg"]) { grid-template-columns: 1fr; }
-    .hotel-banner:has(img[src$=".jpg"]) img { max-height: 200px; }
-    .hotel-banner:has(img[src$=".jpg"]) figcaption { display: flex; padding: 16px 20px; }
-    .hotel-banner:has(img[src$=".jpg"]) figcaption strong { font-size: 18px; }
+    object-position: center 60%;
 }

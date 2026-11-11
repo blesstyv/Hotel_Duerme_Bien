@@ -90,4 +90,4 @@ Observación honesta sobre las estadías superpuestas: por la interfaz, el formu
 
 ## Imagen real del hotel
 
-La fotografía fue entregada por el equipo del proyecto (`hotel_foto.jpg`, 736×736 px). La imagen trae una marca de agua de texto (`@bystudiotm`) incorporada en la foto original; antes de la presentación conviene confirmar que su uso esté permitido o reemplazarla por una foto propia del equipo, copiándola con el mismo nombre.
+La fotografía fue entregada por el equipo del proyecto (`hotel_foto.jpg`, 1600×1065 px, vista nocturna con la piscina). Se muestra sola, sin recuadros encima, en el inicio de sesión y en el panel de cada rol. Para cambiarla basta copiar otra imagen con el mismo nombre en `hotel/static/hotel/img/`. Se asume que el equipo tiene derecho a usarla en el trabajo académico; si se publica fuera de él conviene confirmar su licencia.
