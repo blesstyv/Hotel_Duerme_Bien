@@ -902,14 +902,14 @@ class AsignacionForm(
     )
 
     responsable = SafeModelChoiceField(
-        label="Responsable del grupo",
+        label="Representante del grupo",
         queryset=Pasajero.objects.none(),
         empty_label=(
-            "Seleccione un responsable"
+            "Seleccione un representante"
         ),
         error_messages={
             "invalid_choice":
-                "El responsable debe ser "
+                "El representante debe ser "
                 "un pasajero registrado "
                 "y disponible."
         },
@@ -1148,7 +1148,7 @@ class AsignacionForm(
                 self.add_error(
                     "responsable",
                     (
-                        "El responsable debe "
+                        "El representante debe "
                         "pertenecer al grupo "
                         "distribuido en las "
                         "habitaciones."

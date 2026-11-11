@@ -87,7 +87,7 @@ def validar_asignacion(distribucion, responsable_id, user, fecha_inicio, fecha_t
         raise ValidationError('Uno o más pasajeros ya se encuentran hospedados en una asignación activa.')
     responsible = _id(responsable_id)
     if responsible not in passengers:
-        raise ValidationError('El responsable debe ser uno de los pasajeros de este grupo.')
+        raise ValidationError('El representante debe ser uno de los pasajeros de este grupo.')
     return {'habitaciones': [{'habitacion': rooms[rid], 'pasajeros': [passengers[p] for p in pids]} for rid, pids in parsed.items()],
             'pasajeros': [passengers[p] for p in all_ids], 'responsable': passengers[responsible],
             'cantidad': len(all_ids), 'fecha_inicio': fecha_inicio, 'fecha_termino': fecha_termino, 'noches': noches,

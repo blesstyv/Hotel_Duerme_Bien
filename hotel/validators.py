@@ -108,7 +108,7 @@ def validar_numero_habitacion(value):
     """
     if not re.fullmatch(
         r"[1-9][0-9]{0,4}",
-        str(value).strip(),
+        str(value),
     ):
         raise ValidationError(
             "El número de habitación debe contener solo "

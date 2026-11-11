@@ -101,6 +101,10 @@
           <strong>{{ asignacion.cantidad_pasajeros }}</strong>
         </div>
         <div class="dato">
+          <small>Boleta emitida el</small>
+          <strong>{% now 'd/m/Y H:i' %}</strong>
+        </div>
+        <div class="dato">
           <small>Registrada el</small>
           <strong>{{ asignacion.fecha_ingreso|date:'d/m/Y H:i' }}</strong>
         </div>

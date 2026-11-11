@@ -209,3 +209,116 @@ class RepresentanteDelGrupoTests(HotelTestCase):
     def test_el_representante_es_obligatorio(self):
         with self.assertRaises(ValidationError):
             crear_asignacion({self.room1.pk: [self.people[0].pk]}, None, self.encargado)
+
+
+class NumeroHabitacionCasosLimiteTests(HotelTestCase):
+    """Solo números naturales positivos: se prueban entradas hostiles."""
+
+    def test_rechaza_entradas_que_no_son_naturales_positivos(self):
+        from hotel.validators import validar_numero_habitacion
+        for malo in ("0", "00", "01", "-5", "+5", "1.5", "1,5", "1e3", "12A", "A12", "1 2", "10-1",
+                     "١٢٣", "１２３", "²", "½", "123456", "", " ", "12 ", " 12", "12\n", "0x1F", "1_0"):
+            with self.subTest(numero=repr(malo)), self.assertRaises(ValidationError):
+                validar_numero_habitacion(malo)
+
+    def test_acepta_naturales_positivos(self):
+        from hotel.validators import validar_numero_habitacion
+        for bueno in ("1", "7", "101", "999", "12345"):
+            with self.subTest(numero=bueno):
+                validar_numero_habitacion(bueno)
+
+    def test_el_formulario_normaliza_espacios_y_rechaza_letras(self):
+        from hotel.forms import HabitacionForm
+        datos = {"capacidad": "2", "orientacion": "NORTE", "vista": "MAR"}
+        form = HabitacionForm(data={**datos, "numero": "  205  "})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["numero"], "205")
+        for malo in ("20A", "٢٠٥", "0205", "2 05"):
+            with self.subTest(numero=malo):
+                self.assertFalse(HabitacionForm(data={**datos, "numero": malo}).is_valid())
+
+    def test_editar_una_habitacion_tampoco_permite_letras(self):
+        self.client.force_login(self.encargado)
+        response = self.client.post(
+            url("habitacion_editar", self.room2.pk),
+            {"numero": "10B", "capacidad": "2", "orientacion": "SUR", "vista": "MAR"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.room2.refresh_from_db()
+        self.assertEqual(self.room2.numero, "102")
+
+
+class FlujoHttpGrupoGrandeTests(HotelTestCase):
+    def setUp(self):
+        self.client.force_login(self.encargado)
+
+    def datos(self, rooms_people, representante, inicio, termino, action="preview", extra=None):
+        data = {"rooms": [str(r.pk) for r, _ in rooms_people], "responsable": str(representante.pk),
+                "fecha_inicio": inicio.strftime("%d/%m/%Y"), "fecha_termino": termino.strftime("%d/%m/%Y"),
+                "action": action}
+        for room, people in rooms_people:
+            data[f"pasajeros_{room.pk}"] = [str(p.pk) for p in people]
+        if extra:
+            data.update(extra)
+        return data
+
+    def test_grupo_grande_en_varias_habitaciones_con_representante_y_boleta(self):
+        p = self.people
+        inicio, termino = estadia(4)
+        distribucion = [(self.room3, p[0:3]), (self.room2, p[3:5])]  # 5 personas, habitaciones sin llenar la capacidad exacta
+        data = self.datos(distribucion, p[3], inicio, termino)
+        preview = self.client.post(url("asignacion_crear"), data)
+        self.assertEqual(preview.context["preview"]["costo_total"], 5 * 4 * 40000)
+        confirm = self.client.post(url("asignacion_crear"), {**data, "action": "confirm", "preview_token": preview.context["preview_token"]})
+        asignacion = Asignacion.objects.get()
+        self.assertRedirects(confirm, url("asignacion_detalle", asignacion.pk))
+        self.assertEqual(asignacion.responsable_id, p[3].pk)
+        self.assertEqual(asignacion.costo_total, 800000)
+        boleta = self.client.get(url("asignacion_boleta", asignacion.pk))
+        self.assertContains(boleta, "$800.000")
+        self.assertContains(boleta, "5 pasajeros")
+        self.assertContains(boleta, "4 noches")
+        self.assertContains(boleta, "(representante)")
+        self.assertContains(boleta, "Boleta emitida el")
+
+    def test_un_pasajero_de_otro_grupo_no_puede_ser_representante(self):
+        p = self.people
+        inicio, termino = estadia(2)
+        data = self.datos([(self.room2, p[0:2])], p[5], inicio, termino)
+        response = self.client.post(url("asignacion_crear"), data)
+        self.assertFalse(Asignacion.objects.exists())
+        self.assertIsNone(response.context["preview"])
+
+    def test_intento_manipulado_de_hospedar_a_una_persona_en_dos_habitaciones(self):
+        p = self.people
+        crear_asignacion({self.room1.pk: [p[0].pk]}, p[0].pk, self.encargado, *estadia(3))
+        inicio, termino = estadia(2, desde=1)
+        data = self.datos([(self.room2, [p[0], p[1]])], p[1], inicio, termino)  # se fuerza el POST con una persona ya hospedada
+        response = self.client.post(url("asignacion_crear"), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.context["preview"])
+        self.assertEqual(Asignacion.objects.count(), 1)
+        self.assertContains(response, "no estén hospedados")  # lo bloquea ya el formulario; el servicio lo vuelve a validar
+
+
+class VistaVisibleEnElSistemaTests(HotelTestCase):
+    def test_vista_aparece_en_ocupacion_detalle_y_boleta(self):
+        Habitacion.objects.filter(pk=self.room1.pk).update(vista="MAR")
+        persona = self.people[0]
+        a = crear_asignacion({self.room1.pk: [persona.pk]}, persona.pk, self.encargado)
+        self.client.force_login(self.encargado)
+        self.assertContains(self.client.get(url("ocupacion")), "Vista al mar")
+        self.assertContains(self.client.get(url("asignacion_detalle", a.pk)), "Vista al mar")
+        self.assertContains(self.client.get(url("asignacion_boleta", a.pk)), "Vista al mar")
+        self.assertContains(self.client.get(url("habitacion_list")), "Vista a la ciudad")
+
+    def test_se_puede_crear_una_habitacion_con_cada_vista(self):
+        self.client.force_login(self.encargado)
+        for numero, vista in (("301", "MAR"), ("302", "CIUDAD")):
+            self.client.post(url("habitacion_crear"), {"numero": numero, "capacidad": "2", "orientacion": "NORTE", "vista": vista})
+            self.assertEqual(Habitacion.objects.get(numero=numero).vista, vista)
+
+    def test_vista_invalida_se_rechaza(self):
+        self.client.force_login(self.encargado)
+        self.client.post(url("habitacion_crear"), {"numero": "303", "capacidad": "2", "orientacion": "NORTE", "vista": "BOSQUE"})
+        self.assertFalse(Habitacion.objects.filter(numero="303").exists())

@@ -251,6 +251,9 @@
                                     <span class="badge badge-neutral">
                                         {{ detalle.numero_snapshot }}
                                     </span>
+                                    <div class="help-text">
+                                        {{ detalle.habitacion.get_vista_display }}
+                                    </div>
                                 </td>
 
 
@@ -260,7 +263,7 @@
 
                                         <span class="badge badge-purple">
                                             {% icon 'crown' %}
-                                            Responsable
+                                            Representante
                                         </span>
 
                                     {% else %}
