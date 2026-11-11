@@ -100,3 +100,18 @@ def validate_safe_id_list(values):
         validate_safe_positive_id(value)
         for value in values
     ]
+
+def validar_numero_habitacion(value):
+    """
+    El número de habitación es exclusivamente numérico:
+    de 1 a 5 dígitos, sin letras, símbolos ni ceros iniciales.
+    """
+    if not re.fullmatch(
+        r"[1-9][0-9]{0,4}",
+        str(value).strip(),
+    ):
+        raise ValidationError(
+            "El número de habitación debe contener solo "
+            "dígitos (1 a 5), sin letras ni símbolos y "
+            "sin ceros iniciales. Ejemplo: 101."
+        )

@@ -6,6 +6,7 @@ desde variables de entorno.
 """
 
 import os
+from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.password_validation import (
@@ -19,6 +20,7 @@ from django.core.management.base import (
     CommandError,
 )
 from django.db import transaction
+from django.utils import timezone
 
 from hotel.models import (
     Asignacion,
@@ -425,6 +427,8 @@ class Command(BaseCommand):
                     "datos existentes."
                 )
 
+            hoy = timezone.localdate()
+
             closed = crear_asignacion(
                 {
                     rooms[0].pk: [
@@ -433,6 +437,8 @@ class Command(BaseCommand):
                 },
                 passengers[5].pk,
                 operator,
+                hoy,
+                hoy + timedelta(days=1),
             )
 
             liberar_asignacion(
@@ -449,6 +455,8 @@ class Command(BaseCommand):
                 },
                 passengers[6].pk,
                 operator,
+                hoy,
+                hoy + timedelta(days=1),
             )
 
             liberar_asignacion(
@@ -471,6 +479,8 @@ class Command(BaseCommand):
                 },
                 passengers[0].pk,
                 operator,
+                hoy,
+                hoy + timedelta(days=3),
             )
 
             crear_asignacion(
@@ -481,6 +491,8 @@ class Command(BaseCommand):
                 },
                 passengers[8].pk,
                 operator,
+                hoy,
+                hoy + timedelta(days=2),
             )
 
             registrar_movimiento(

@@ -1,7 +1,31 @@
+from datetime import timedelta
+
 from django.test import TestCase
+from django.utils import timezone
+
+from hotel import services
 from hotel.models import Usuario, Habitacion, Pasajero
 
 PASSWORD = 'ClaveAcademica#2026'
+
+
+def estadia(noches=1, desde=0):
+    """Periodo válido: inicia hoy (+desde días) y dura `noches`."""
+    inicio = timezone.localdate() + timedelta(days=desde)
+    return inicio, inicio + timedelta(days=noches)
+
+
+def crear_asignacion(distribucion, responsable_id, user, fecha_inicio=None, fecha_termino=None, noches=1):
+    """Atajo de pruebas: usa una estadía de una noche si no se indican fechas."""
+    if fecha_inicio is None and fecha_termino is None:
+        fecha_inicio, fecha_termino = estadia(noches)
+    return services.crear_asignacion(distribucion, responsable_id, user, fecha_inicio, fecha_termino)
+
+
+def validar_asignacion(distribucion, responsable_id, user, fecha_inicio=None, fecha_termino=None, noches=1):
+    if fecha_inicio is None and fecha_termino is None:
+        fecha_inicio, fecha_termino = estadia(noches)
+    return services.validar_asignacion(distribucion, responsable_id, user, fecha_inicio, fecha_termino)
 
 def rut_for(number):
     body = str(number)

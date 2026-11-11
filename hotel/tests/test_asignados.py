@@ -2,11 +2,10 @@ from django.urls import reverse
 
 from hotel.models import Hospedaje
 from hotel.services import (
-    crear_asignacion,
     liberar_asignacion,
 )
 
-from .base import HotelTestCase
+from .base import HotelTestCase, crear_asignacion
 
 
 def url(name, pk=None):

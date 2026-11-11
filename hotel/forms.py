@@ -17,13 +17,17 @@ from django.core.exceptions import (
     ValidationError,
 )
 
+from django.utils import timezone
+
 from .models import (
+    MAX_NOCHES_ESTADIA,
     Habitacion,
     Pasajero,
     Usuario,
 )
 from .validators import (
     normalizar_rut,
+    validar_numero_habitacion,
     validate_safe_id_list,
     validate_safe_positive_id,
 )
@@ -540,6 +544,18 @@ class HabitacionForm(
         }
 
         widgets = {
+            "numero":
+                forms.TextInput(
+                    attrs={
+                        "inputmode": "numeric",
+                        "pattern": "[1-9][0-9]{0,4}",
+                        "maxlength": 5,
+                        "placeholder": "101",
+                        "title":
+                            "Solo dígitos, sin letras "
+                            "ni símbolos.",
+                    }
+                ),
             "capacidad":
                 forms.NumberInput(
                     attrs={
@@ -566,6 +582,10 @@ class HabitacionForm(
                 "numero"
             ]
             .strip()
+        )
+
+        validar_numero_habitacion(
+            numero
         )
 
         if (
@@ -777,9 +797,46 @@ class AsignacionForm(
     """
     Distribución explícita.
 
-    Costo, fechas, estado y usuario
+    El Encargado indica el periodo de la estadía.
+    Costo, fecha de registro, estado y usuario
     no son editables desde el cliente.
     """
+
+    fecha_inicio = forms.DateField(
+        label="Inicio de la estadía",
+        widget=forms.DateInput(
+            format="%Y-%m-%d",
+            attrs={
+                "type": "date",
+            },
+        ),
+        error_messages={
+            "required":
+                "Indique la fecha de inicio "
+                "de la estadía.",
+            "invalid":
+                "Ingrese una fecha de "
+                "inicio válida.",
+        },
+    )
+
+    fecha_termino = forms.DateField(
+        label="Término de la estadía",
+        widget=forms.DateInput(
+            format="%Y-%m-%d",
+            attrs={
+                "type": "date",
+            },
+        ),
+        error_messages={
+            "required":
+                "Indique la fecha de término "
+                "de la estadía.",
+            "invalid":
+                "Ingrese una fecha de "
+                "término válida.",
+        },
+    )
 
     rooms = SafeModelMultipleChoiceField(
         label="Habitaciones",
@@ -817,6 +874,24 @@ class AsignacionForm(
         super().__init__(
             *args,
             **kwargs,
+        )
+
+        self.fields[
+            "fecha_inicio"
+        ].error_messages[
+            "required"
+        ] = (
+            "Indique la fecha de inicio "
+            "de la estadía."
+        )
+
+        self.fields[
+            "fecha_termino"
+        ].error_messages[
+            "required"
+        ] = (
+            "Indique la fecha de término "
+            "de la estadía."
         )
 
         rooms = (
@@ -971,9 +1046,20 @@ class AsignacionForm(
                     ids
                 )
 
-                if (
+                if not ids:
+                    self.add_error(
+                        name,
+                        (
+                            f"Seleccione al menos "
+                            f"un pasajero para la "
+                            f"habitación "
+                            f"{room.numero}."
+                        ),
+                    )
+
+                elif (
                     len(ids)
-                    !=
+                    >
                     room.capacidad
                 ):
                     self.add_error(
@@ -981,7 +1067,7 @@ class AsignacionForm(
                         (
                             f"La habitación "
                             f"{room.numero} "
-                            f"requiere exactamente "
+                            f"admite como máximo "
                             f"{room.capacidad} "
                             f"pasajeros; "
                             f"se seleccionaron "
@@ -1017,6 +1103,51 @@ class AsignacionForm(
                         "pertenecer al grupo "
                         "distribuido en las "
                         "habitaciones."
+                    ),
+                )
+
+        inicio = data.get(
+            "fecha_inicio"
+        )
+
+        termino = data.get(
+            "fecha_termino"
+        )
+
+        if (
+            inicio
+            and
+            inicio < timezone.localdate()
+        ):
+            self.add_error(
+                "fecha_inicio",
+                (
+                    "La fecha de inicio no "
+                    "puede ser anterior a hoy."
+                ),
+            )
+
+        if inicio and termino:
+            if termino <= inicio:
+                self.add_error(
+                    "fecha_termino",
+                    (
+                        "La fecha de término debe "
+                        "ser posterior a la de "
+                        "inicio (mínimo una noche)."
+                    ),
+                )
+
+            elif (
+                (termino - inicio).days
+                >
+                MAX_NOCHES_ESTADIA
+            ):
+                self.add_error(
+                    "fecha_termino",
+                    (
+                        "La estadía no puede superar "
+                        f"{MAX_NOCHES_ESTADIA} noches."
                     ),
                 )
 

@@ -25,7 +25,8 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from .decorators import admin_required, encargado_required, usuario_required
 from .forms import AsignacionForm, EncargadoCreationForm, EncargadoEditForm, HabitacionForm, LoginForm, PasajeroForm
 from .models import Asignacion, DetalleHabitacionAsignada, Habitacion, Hospedaje, LoginIntento, Movimiento, Pasajero, Usuario
-from .services import crear_asignacion, eliminar_habitacion, liberar_asignacion, registrar_movimiento, resumen_ocupacion, validar_asignacion
+from .models import MAX_NOCHES_ESTADIA
+from .services import TARIFA_PASAJERO, crear_asignacion, eliminar_habitacion, liberar_asignacion, registrar_movimiento, resumen_ocupacion, validar_asignacion
 
 logger = logging.getLogger(__name__)
 LOGIN_ERROR = "Usuario o contraseña incorrectos, o cuenta no disponible."
@@ -68,7 +69,7 @@ def login_view(request):
     if request.method == "POST" and form.is_valid():
         username = form.cleaned_data["username"]
         key = salted_hmac("hotel.login.throttle", username.strip().casefold()).hexdigest()
-        maximum = getattr(settings, "LOGIN_MAX_FAILURES", 5)
+        maximum = getattr(settings, "LOGIN_MAX_FAILURES", 3)
         duration = getattr(settings, "LOGIN_LOCK_SECONDS", 300)
         now = timezone.now()
         user = None
@@ -76,7 +77,8 @@ def login_view(request):
             with transaction.atomic():
                 attempt, _ = LoginIntento.objects.select_for_update().get_or_create(clave=key)
                 if attempt.bloqueado_hasta and attempt.bloqueado_hasta > now:
-                    form.add_error(None, "Demasiados intentos. Espere unos minutos antes de volver a intentar.")
+                    minutes = max(1, -(-int((attempt.bloqueado_hasta - now).total_seconds()) // 60))
+                    form.add_error(None, f"Cuenta bloqueada temporalmente por intentos fallidos. Podrá volver a intentar en {minutes} minuto{'s' if minutes != 1 else ''}.")
                     status = 429
                 else:
                     if attempt.bloqueado_hasta:
@@ -91,7 +93,11 @@ def login_view(request):
                         attempt.fallos += 1
                         if attempt.fallos >= maximum:
                             attempt.bloqueado_hasta = now + timedelta(seconds=duration)
-                        form.add_error(None, LOGIN_ERROR)
+                            form.add_error(None, f"{LOGIN_ERROR} Se alcanzó el límite de {maximum} intentos fallidos: el acceso queda bloqueado durante {max(1, duration // 60)} minutos.")
+                            status = 429
+                        else:
+                            remaining = maximum - attempt.fallos
+                            form.add_error(None, f"{LOGIN_ERROR} Le queda{'n' if remaining != 1 else ''} {remaining} intento{'s' if remaining != 1 else ''} antes del bloqueo temporal.")
                     attempt.save(update_fields=["fallos", "bloqueado_hasta"])
             if user is not None:
                 login(request, user)
@@ -364,8 +370,8 @@ def asignacion_list(request):
     return render(request, "hotel/asignacion_list.html", {"asignaciones": page, "page_obj": page, "q": q, "estado": estado, "estados": Asignacion.Estado.choices, "title": "Asignaciones", "subtitle": "Ingresos, grupos y salidas del hotel", "nav_active": "asignaciones"})
 
 
-def _distribution_fingerprint(distribution, responsible):
-    canonical = {"distribucion": {str(key): sorted(values) for key, values in sorted(distribution.items())}, "responsable": responsible}
+def _distribution_fingerprint(distribution, responsible, start, end):
+    canonical = {"distribucion": {str(key): sorted(values) for key, values in sorted(distribution.items())}, "responsable": responsible, "inicio": start.isoformat(), "termino": end.isoformat()}
     return hashlib.sha256(json.dumps(canonical, sort_keys=True).encode()).hexdigest()
 
 
@@ -381,19 +387,20 @@ def asignacion_crear(request):
         elif form.is_valid():
             distribution = form.cleaned_data["distribucion"]
             responsible = form.cleaned_data["responsable"].pk
-            fingerprint = _distribution_fingerprint(distribution, responsible)
+            start, end = form.cleaned_data["fecha_inicio"], form.cleaned_data["fecha_termino"]
+            fingerprint = _distribution_fingerprint(distribution, responsible, start, end)
             try:
                 if action == "confirm":
                     previous = request.session.get("asignacion_preview", {})
                     token = request.POST.get("preview_token", "")
                     if not token or not constant_time_compare(token, previous.get("token", "")) or previous.get("fingerprint") != fingerprint:
                         raise ValidationError("Revise el resumen actualizado antes de confirmar la asignación.")
-                    assignment = crear_asignacion(distribution, responsible, request.user)
+                    assignment = crear_asignacion(distribution, responsible, request.user, start, end)
                     request.session.pop("asignacion_preview", None)
                     messages.success(request, "Asignación confirmada. Las habitaciones quedaron ocupadas y el costo se calculó automáticamente.")
                     return redirect("hotel:asignacion_detalle", pk=assignment.pk)
                 with transaction.atomic():
-                    preview = validar_asignacion(distribution, responsible, request.user)
+                    preview = validar_asignacion(distribution, responsible, request.user, start, end)
                 preview_token = secrets.token_urlsafe(32)
                 request.session["asignacion_preview"] = {"token": preview_token, "fingerprint": fingerprint}
             except (ValidationError, IntegrityError, OperationalError) as error:
@@ -406,7 +413,7 @@ def asignacion_crear(request):
     # El frontend recibe errores de todos los campos, incluidos los controles
     # de distribución que se renderizan manualmente.
     errors = [message for field_errors in form.errors.values() for message in field_errors] if form.is_bound else []
-    return render(request, "hotel/asignacion_form.html", {"form": form, "errors": errors, "available_rooms": rooms, "passengers": passengers, "habitaciones_disponibles": rooms, "pasajeros_disponibles": passengers, "selected_rooms": selected_rooms, "selected_by_room": selected_by_room, "selected_responsable": request.POST.get("responsable", ""), "preview": preview, "preview_token": preview_token, "title": "Nueva asignación", "subtitle": "Distribuya el grupo y revise el resumen antes de confirmar", "nav_active": "asignaciones"})
+    return render(request, "hotel/asignacion_form.html", {"form": form, "errors": errors, "available_rooms": rooms, "passengers": passengers, "habitaciones_disponibles": rooms, "pasajeros_disponibles": passengers, "selected_rooms": selected_rooms, "selected_by_room": selected_by_room, "selected_responsable": request.POST.get("responsable", ""), "today": timezone.localdate().isoformat(), "tarifa": TARIFA_PASAJERO, "max_noches": MAX_NOCHES_ESTADIA, "preview": preview, "preview_token": preview_token, "title": "Nueva asignación", "subtitle": "Distribuya el grupo y revise el resumen antes de confirmar", "nav_active": "asignaciones"})
 
 
 @encargado_required

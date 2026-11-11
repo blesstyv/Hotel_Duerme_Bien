@@ -1,11 +1,13 @@
 """Reglas de negocio. Las escrituras del flujo principal son indivisibles."""
 import re
+from datetime import date
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.db import transaction, IntegrityError, OperationalError
 from django.utils import timezone
-from .models import Usuario, Habitacion, Pasajero, Asignacion, DetalleHabitacionAsignada, Hospedaje, Movimiento
+from .models import Usuario, Habitacion, Pasajero, Asignacion, DetalleHabitacionAsignada, Hospedaje, Movimiento, TARIFA_PASAJERO_NOCHE, MAX_NOCHES_ESTADIA
 
-TARIFA_PASAJERO = 40000
+# Se conserva el nombre histórico: la tarifa es por pasajero y por noche.
+TARIFA_PASAJERO = TARIFA_PASAJERO_NOCHE
 
 def exigir_encargado(user):
     if not user or not user.is_authenticated or not user.is_active or user.rol != Usuario.Rol.ENCARGADO or not Usuario.objects.filter(pk=user.pk, is_active=True, rol=Usuario.Rol.ENCARGADO).exists():
@@ -22,8 +24,26 @@ def _id(value):
     except (TypeError, ValueError, OverflowError):
         raise ValidationError('La selección contiene un identificador inválido.')
 
-def validar_asignacion(distribucion, responsable_id, user):
+def validar_estadia(fecha_inicio, fecha_termino):
+    """Valida el periodo de la estadía y devuelve la cantidad de noches."""
+    if type(fecha_inicio) is not date or type(fecha_termino) is not date:
+        raise ValidationError('Indica la fecha de inicio y la fecha de término de la estadía.')
+    if fecha_inicio < timezone.localdate():
+        raise ValidationError('La fecha de inicio de la estadía no puede ser anterior a hoy.')
+    if fecha_termino <= fecha_inicio:
+        raise ValidationError('La fecha de término debe ser posterior a la fecha de inicio (mínimo una noche).')
+    noches = (fecha_termino - fecha_inicio).days
+    if noches > MAX_NOCHES_ESTADIA:
+        raise ValidationError(f'La estadía no puede superar {MAX_NOCHES_ESTADIA} noches.')
+    return noches
+
+def calcular_costo(cantidad_pasajeros, noches):
+    """Costo = pasajeros x noches x tarifa. Siempre lo calcula el servidor."""
+    return cantidad_pasajeros * noches * TARIFA_PASAJERO_NOCHE
+
+def validar_asignacion(distribucion, responsable_id, user, fecha_inicio, fecha_termino):
     exigir_encargado(user)
+    noches = validar_estadia(fecha_inicio, fecha_termino)
     if not isinstance(distribucion, dict) or not distribucion:
         raise ValidationError('Selecciona al menos una habitación y sus pasajeros.')
     parsed = {}
@@ -46,8 +66,10 @@ def validar_asignacion(distribucion, responsable_id, user):
         room = rooms[rid]
         if not room.activa or room.estado != Habitacion.Estado.VACANTE or room.detalles.filter(activa=True).exists():
             raise ValidationError(f'La habitación {room.numero} ya no está disponible. Actualiza la selección.')
-        if len(pids) != room.capacidad:
-            raise ValidationError(f'La habitación {room.numero} exige exactamente {room.capacidad} pasajeros; seleccionaste {len(pids)}.')
+        if not pids:
+            raise ValidationError(f'Selecciona al menos un pasajero para la habitación {room.numero}.')
+        if len(pids) > room.capacidad:
+            raise ValidationError(f'La habitación {room.numero} admite como máximo {room.capacidad} pasajeros; seleccionaste {len(pids)}.')
     if Hospedaje.objects.filter(pasajero_id__in=all_ids, activa=True).exists():
         raise ValidationError('Uno o más pasajeros ya se encuentran hospedados en una asignación activa.')
     responsible = _id(responsable_id)
@@ -55,16 +77,18 @@ def validar_asignacion(distribucion, responsable_id, user):
         raise ValidationError('El responsable debe ser uno de los pasajeros de este grupo.')
     return {'habitaciones': [{'habitacion': rooms[rid], 'pasajeros': [passengers[p] for p in pids]} for rid, pids in parsed.items()],
             'pasajeros': [passengers[p] for p in all_ids], 'responsable': passengers[responsible],
-            'cantidad': len(all_ids), 'costo_total': len(all_ids) * TARIFA_PASAJERO}
+            'cantidad': len(all_ids), 'fecha_inicio': fecha_inicio, 'fecha_termino': fecha_termino, 'noches': noches,
+            'tarifa': TARIFA_PASAJERO_NOCHE, 'costo_total': calcular_costo(len(all_ids), noches)}
 
-def crear_asignacion(distribucion, responsable_id, user):
+def crear_asignacion(distribucion, responsable_id, user, fecha_inicio, fecha_termino):
     try:
         with transaction.atomic():
             # SQLite BEGIN IMMEDIATE serializa escritores ANTES de comprobar disponibilidad.
-            summary = validar_asignacion(distribucion, responsable_id, user)
+            summary = validar_asignacion(distribucion, responsable_id, user, fecha_inicio, fecha_termino)
             responsible = summary['responsable']
             assignment = Asignacion.objects.create(responsable=responsible, responsable_nombre=responsible.nombre_completo,
-                            responsable_rut=responsible.rut, registrada_por=user, costo_total=summary['costo_total'])
+                            responsable_rut=responsible.rut, registrada_por=user, fecha_inicio=summary['fecha_inicio'],
+                            fecha_termino=summary['fecha_termino'], costo_total=summary['costo_total'])
             for row in summary['habitaciones']:
                 room = row['habitacion']
                 changed = Habitacion.objects.filter(pk=room.pk, activa=True, estado=Habitacion.Estado.VACANTE).update(estado=Habitacion.Estado.OCUPADA)
@@ -74,7 +98,7 @@ def crear_asignacion(distribucion, responsable_id, user):
                                                 numero_snapshot=room.numero, capacidad_snapshot=room.capacidad)
                 for passenger in row['pasajeros']:
                     Hospedaje.objects.create(detalle=detail, pasajero=passenger, nombre_snapshot=passenger.nombre_completo, rut_snapshot=passenger.rut)
-            registrar_movimiento(user, 'ASIGNACION', f'Asignación #{assignment.pk:04d}: {summary["cantidad"]} pasajeros, {len(summary["habitaciones"])} habitaciones.')
+            registrar_movimiento(user, 'ASIGNACION', f'Asignación #{assignment.pk:04d}: {summary["cantidad"]} pasajeros, {len(summary["habitaciones"])} habitaciones, {summary["noches"]} noches.')
             return assignment
     except IntegrityError as exc:
         raise ValidationError('La selección cambió por otra operación. Actualiza e inténtalo nuevamente.') from exc

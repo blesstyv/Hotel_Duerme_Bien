@@ -4,7 +4,8 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 from hotel.models import Habitacion, Pasajero, Asignacion, DetalleHabitacionAsignada, Hospedaje, Movimiento
 from hotel.forms import HabitacionForm, PasajeroForm
-from hotel.services import crear_asignacion, validar_asignacion, liberar_asignacion, eliminar_habitacion, resumen_ocupacion
+from hotel.services import liberar_asignacion, eliminar_habitacion, resumen_ocupacion
+from .base import crear_asignacion, validar_asignacion
 from .base import HotelTestCase
 
 class AssignmentTests(HotelTestCase):
@@ -17,9 +18,16 @@ class AssignmentTests(HotelTestCase):
         self.room1.refresh_from_db()
         self.assertEqual(self.room1.estado, Habitacion.Estado.OCUPADA)
 
-    def test_capacity_underfilled_rejected(self):
+    def test_partial_capacity_allowed(self):
+        # Retroalimentación U2: no se exige completar la capacidad.
+        assignment = crear_asignacion({self.room3.pk: [self.people[0].pk, self.people[1].pk]}, self.people[0].pk, self.encargado)
+        self.assertEqual(assignment.cantidad_pasajeros, 2)
+        self.room3.refresh_from_db()
+        self.assertEqual(self.room3.estado, Habitacion.Estado.OCUPADA)
+
+    def test_room_without_passengers_rejected(self):
         with self.assertRaises(ValidationError):
-            crear_asignacion({self.room3.pk: [self.people[0].pk, self.people[1].pk]}, self.people[0].pk, self.encargado)
+            crear_asignacion({self.room1.pk: [self.people[0].pk], self.room3.pk: []}, self.people[0].pk, self.encargado)
         self.assertFalse(Asignacion.objects.exists())
 
     def test_capacity_overfilled_rejected(self):
@@ -71,7 +79,7 @@ class AssignmentTests(HotelTestCase):
 
     def test_atomic_rejection_preserves_all_rooms(self):
         with self.assertRaises(ValidationError):
-            crear_asignacion({self.room1.pk: [self.people[0].pk], self.room3.pk: [self.people[1].pk]}, self.people[0].pk, self.encargado)
+            crear_asignacion({self.room3.pk: [self.people[0].pk], self.room1.pk: [self.people[1].pk, self.people[2].pk]}, self.people[0].pk, self.encargado)
         self.assertFalse(Asignacion.objects.exists())
         self.assertFalse(Hospedaje.objects.exists())
         self.assertFalse(Habitacion.objects.filter(estado='OCUPADA').exists())

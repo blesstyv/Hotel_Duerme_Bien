@@ -37,9 +37,9 @@ Los resultados deben verse en la interfaz o en la salida real de terminal. No pr
 
 **¿Por qué un monolito por capas?** Un hotel tiene módulos relacionados por transacciones únicas. Views manejan solicitudes, Services concentran reglas y Models conservan las relaciones. Separar esas responsabilidades mejora la revisión y evita la complejidad de servicios distribuidos en esta escala.
 
-**¿Por qué un grupo de dos personas no puede ocupar una habitación de tres?** La regla RN-02 del informe E2 exige igualdad exacta, aunque difiera de otros hoteles. El servidor rechaza 2 o 4 personas para capacidad 3, incluida una petición manipulada.
+**¿Puede una persona ocupar una habitación de cuatro?** Sí. Por retroalimentación de la evaluación U2 ya no se exige completar la capacidad: cada habitación admite de 1 pasajero hasta su capacidad máxima. El servidor rechaza habitaciones vacías y excesos de capacidad, incluida una petición manipulada.
 
-**¿Quién calcula el monto?** El servicio del servidor multiplica $40.000 por pasajeros únicos. El usuario no puede escribir ni modificar el costo. El total no incluye noches porque la especificación fija el costo por pasajero de la contratación.
+**¿Quién calcula el monto?** El servicio del servidor calcula pasajeros × noches × $40.000 (1 persona 1 noche = $40.000; 1 persona 2 noches = $80.000). Las noches salen de las fechas de inicio y término, obligatorias. El usuario no puede escribir ni modificar el costo ni las fechas una vez confirmada la asignación.
 
 **¿Qué impide que un encargado se convierta en administrador?** Las rutas requieren rol, los formularios exponen campos definidos y la creación de usuarios está limitada a Encargados. Ocultar menús es una ayuda visual; la autorización se vuelve a comprobar en el servidor.
 

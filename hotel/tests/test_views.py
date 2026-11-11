@@ -3,8 +3,9 @@ from django.contrib.auth.hashers import identify_hasher
 from django.test import Client, override_settings
 from django.urls import reverse
 from hotel.models import Usuario, Habitacion, Pasajero, Asignacion, LoginIntento, Hospedaje
-from hotel.services import crear_asignacion, liberar_asignacion
-from .base import HotelTestCase, PASSWORD
+from hotel.services import liberar_asignacion
+from .base import crear_asignacion
+from .base import HotelTestCase, PASSWORD, estadia
 
 def url(name, pk=None):
     return reverse('hotel:' + name, kwargs={'pk': pk} if pk is not None else None)
@@ -209,7 +210,8 @@ class FlowTests(HotelTestCase):
         self.client.force_login(self.encargado)
 
     def distribution(self):
-        return {'rooms': [str(self.room1.pk)], f'pasajeros_{self.room1.pk}': [str(self.people[0].pk)], 'responsable': str(self.people[0].pk)}
+        inicio, termino = estadia()
+        return {'rooms': [str(self.room1.pk)], f'pasajeros_{self.room1.pk}': [str(self.people[0].pk)], 'responsable': str(self.people[0].pk), 'fecha_inicio': inicio.isoformat(), 'fecha_termino': termino.isoformat()}
 
     def test_preview_confirm_and_server_owned_fields(self):
         data = self.distribution()

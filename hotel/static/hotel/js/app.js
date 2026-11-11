@@ -441,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
           "badge "
           +
           (
-            count === capacity
+            count >= 1 && count <= capacity
               ? "badge-success"
               : count > capacity
                 ? "badge-danger"
@@ -593,6 +593,10 @@ document.addEventListener("DOMContentLoaded", function () {
           +
           "[data-passenger-select], "
           +
+          "[data-stay-start], "
+          +
+          "[data-stay-end], "
+          +
           "[data-responsable]"
         )
       ) {
@@ -679,3 +683,81 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 });
+
+/*
+ * Periodo de la estadía.
+ *
+ * Muestra las noches y la tarifa resultante por pasajero
+ * como ayuda visual. El costo real siempre lo calcula
+ * y valida el servidor.
+ */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const start =
+      document.querySelector("[data-stay-start]");
+
+    const end =
+      document.querySelector("[data-stay-end]");
+
+    const caption =
+      document.querySelector("[data-stay-nights]");
+
+    if (!start || !end || !caption) {
+      return;
+    }
+
+    const rate = Number(caption.dataset.rate) || 0;
+
+    function parse(value) {
+      const parts = value.split("-").map(Number);
+
+      if (parts.length !== 3 || parts.some(isNaN)) {
+        return null;
+      }
+
+      return Date.UTC(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    function update() {
+
+      const from = parse(start.value);
+      const to = parse(end.value);
+
+      if (from !== null) {
+        const next = new Date(from + 86400000);
+        end.min = next.toISOString().slice(0, 10);
+      }
+
+      if (from === null || to === null) {
+        caption.textContent =
+          "Selecciona ambas fechas para calcular "
+          + "las noches de la estadía.";
+        return;
+      }
+
+      const nights = Math.round((to - from) / 86400000);
+
+      if (nights < 1) {
+        caption.textContent =
+          "La fecha de término debe ser posterior "
+          + "a la fecha de inicio.";
+        return;
+      }
+
+      caption.textContent =
+        nights
+        + (nights === 1 ? " noche" : " noches")
+        + " · $"
+        + (nights * rate).toLocaleString("es-CL")
+        + " CLP por pasajero.";
+    }
+
+    start.addEventListener("change", update);
+    end.addEventListener("change", update);
+
+    update();
+  }
+);

@@ -81,7 +81,7 @@
 
         <div>
             <small>
-                Fecha y hora de ingreso
+                Asignación registrada el
             </small>
 
             <strong>
@@ -92,7 +92,34 @@
 
 
     <article class="detail-card">
-        <span class="metric-icon purple">
+
+    <span class="metric-icon green">
+      {% icon 'moon' %}
+    </span>
+
+    <div>
+
+      <small>
+        Periodo de la estadía
+      </small>
+
+      <strong>
+        {{ asignacion.fecha_inicio|date:'d/m/Y' }}
+        al
+        {{ asignacion.fecha_termino|date:'d/m/Y' }}
+        ·
+        {{ asignacion.noches }}
+        noche{{ asignacion.noches|pluralize }}
+      </strong>
+
+    </div>
+
+  </article>
+
+
+  <article class="detail-card">
+
+    <span class="metric-icon purple">
             {% icon 'calendar' %}
         </span>
 
@@ -334,11 +361,27 @@
                 <div>
 
                     <dt>
-                        Tarifa por pasajero
-                    </dt>
+                        Tarifa por pasajero y noche
+                      </dt>
 
-                    <dd>
+                      <dd>
                         $40.000 CLP
+                      </dd>
+
+                    </div>
+
+                    <div>
+
+                      <dt>
+                        Cálculo del costo
+                      </dt>
+
+                      <dd>
+                        {{ asignacion.cantidad_pasajeros }}
+                        pasajero{{ asignacion.cantidad_pasajeros|pluralize }}
+                        × {{ asignacion.noches }}
+                        noche{{ asignacion.noches|pluralize }}
+                        × $40.000
                     </dd>
 
                 </div>

@@ -62,6 +62,102 @@
 
         <h2 class="assignment-step">
 
+          {% icon 'calendar' %}
+
+          Periodo de la estadía
+
+        </h2>
+
+        <p>
+          Indica la fecha de inicio y la fecha
+          de término. El costo se calcula por
+          pasajero y por noche.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <div class="panel-body">
+
+      <div class="form-grid">
+
+        <div class="form-field {% if form.fecha_inicio.errors %}has-error{% endif %}">
+
+          <label for="id_fecha_inicio">
+            Fecha de inicio
+            <span class="required-mark" aria-hidden="true">*</span>
+          </label>
+
+          <input
+            type="date"
+            class="input"
+            id="id_fecha_inicio"
+            name="fecha_inicio"
+            value="{{ form.fecha_inicio.value|default_if_none:today }}"
+            min="{{ today }}"
+            required
+            data-stay-start
+          >
+
+          <div class="help-text">
+            No puede ser anterior a hoy.
+          </div>
+
+        </div>
+
+
+        <div class="form-field {% if form.fecha_termino.errors %}has-error{% endif %}">
+
+          <label for="id_fecha_termino">
+            Fecha de término
+            <span class="required-mark" aria-hidden="true">*</span>
+          </label>
+
+          <input
+            type="date"
+            class="input"
+            id="id_fecha_termino"
+            name="fecha_termino"
+            value="{{ form.fecha_termino.value|default_if_none:'' }}"
+            min="{{ today }}"
+            required
+            data-stay-end
+          >
+
+          <div class="help-text">
+            Debe ser posterior al inicio
+            (mínimo una noche).
+          </div>
+
+        </div>
+
+      </div>
+
+      <p
+        class="info-caption"
+        data-stay-nights
+        data-rate="{{ tarifa }}"
+        aria-live="polite"
+      >
+        Selecciona ambas fechas para calcular
+        las noches de la estadía.
+      </p>
+
+    </div>
+
+  </section>
+
+
+  <section class="panel">
+
+    <div class="panel-heading">
+
+      <div>
+
+        <h2 class="assignment-step">
+
           <span class="step-number">
             1
           </span>
@@ -268,9 +364,9 @@
         </h2>
 
         <p>
-          Cada habitación debe completarse
-          exactamente. Sólo aparecen pasajeros
-          que no tienen un hospedaje activo.
+          Cada habitación admite desde un pasajero
+          hasta su capacidad máxima. Sólo aparecen
+          pasajeros que no tienen un hospedaje activo.
         </p>
 
       </div>
@@ -327,7 +423,7 @@
 
                   <small>
                     {{ room.get_vista_display }}
-                    · Selecciona exactamente
+                    · Selecciona de 1 a
                     {{ room.capacidad }}
                     pasajero{{ room.capacidad|pluralize }}
                   </small>
@@ -606,10 +702,10 @@
 
         <p class="info-caption">
 
-          Tarifa fija por pasajero:
+          Tarifa por pasajero y por noche:
 
           <strong>
-            $40.000 CLP.
+            {{ tarifa|clp }} CLP.
           </strong>
 
           El costo final se presenta
@@ -694,9 +790,9 @@
             </strong>
 
             <small>
-              La capacidad de cada habitación
-              está completa y todos los
-              pasajeros están disponibles.
+              Ninguna habitación supera su
+              capacidad y todos los pasajeros
+              están disponibles.
             </small>
 
           </div>
@@ -813,8 +909,32 @@
               </div>
 
               <div>
-                <dt>Tarifa por pasajero</dt>
-                <dd>$40.000 CLP</dd>
+                <dt>Inicio de la estadía</dt>
+                <dd>{{ preview.fecha_inicio|date:'d/m/Y' }}</dd>
+              </div>
+
+              <div>
+                <dt>Término de la estadía</dt>
+                <dd>{{ preview.fecha_termino|date:'d/m/Y' }}</dd>
+              </div>
+
+              <div>
+                <dt>Noches</dt>
+                <dd>{{ preview.noches }}</dd>
+              </div>
+
+              <div>
+                <dt>Tarifa por pasajero y noche</dt>
+                <dd>{{ preview.tarifa|clp }} CLP</dd>
+              </div>
+
+              <div>
+                <dt>Cálculo</dt>
+                <dd>
+                  {{ preview.cantidad }} pasajero{{ preview.cantidad|pluralize }}
+                  × {{ preview.noches }} noche{{ preview.noches|pluralize }}
+                  × {{ preview.tarifa|clp }}
+                </dd>
               </div>
 
               <div class="summary-total">

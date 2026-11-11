@@ -371,6 +371,11 @@ CSRF_FAILURE_VIEW = (
     "hotel.views.csrf_failure"
 )
 
+# Control de intentos fallidos de inicio de sesión:
+# 3 fallos consecutivos bloquean el acceso durante 5 minutos.
+LOGIN_MAX_FAILURES = 3
+LOGIN_LOCK_SECONDS = 300
+
 LOGIN_REDIRECT_URL = (
     "hotel:inicio"
 )

@@ -2,7 +2,7 @@
 
 Aplicación web interna de gestión de pasajeros para la Evaluación 3 de Ingeniería de Software. Implementa los RF-01 a RF-25 de la Evaluación 2 con autenticación real, permisos por rol, asignaciones transaccionales y conservación del historial. Los PDF de referencia se conservan en la raíz.
 
-La tarifa es **$40.000 CLP por pasajero**. Cada habitación debe recibir **exactamente su capacidad**. Un grupo de cinco personas puede ocupar una habitación de tres plazas y otra de dos; el total de la contratación es $200.000. El responsable pertenece al grupo y se registra por asignación.
+La tarifa es **$40.000 CLP por pasajero y por noche**; toda asignación exige fecha de inicio y de término (mínimo una noche). Cada habitación admite **de 1 pasajero hasta su capacidad máxima**. Un grupo de cinco personas puede ocupar una habitación de tres plazas y otra de dos durante dos noches; el total es 5 × 2 × $40.000 = $400.000. El inicio de sesión se bloquea 5 minutos tras 3 intentos fallidos. El número de habitación es exclusivamente numérico. El responsable pertenece al grupo y se registra por asignación.
 
 ## Inicio en Windows
 

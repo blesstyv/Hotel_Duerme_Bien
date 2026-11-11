@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import connections, close_old_connections
 from django.test import TransactionTestCase
 from hotel.models import Usuario, Habitacion, Pasajero, Asignacion, Hospedaje
-from hotel.services import crear_asignacion
+from .base import crear_asignacion
 from .base import PASSWORD, rut_for
 
 class ConcurrencyTests(TransactionTestCase):

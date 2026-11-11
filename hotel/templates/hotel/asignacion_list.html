@@ -202,6 +202,16 @@
 
                         <td class="nowrap">
                             {{ asignacion.fecha_ingreso|date:'d/m/Y H:i' }}
+
+                            <div class="help-text">
+                              Estadía:
+                              {{ asignacion.fecha_inicio|date:'d/m/Y' }}
+                              al
+                              {{ asignacion.fecha_termino|date:'d/m/Y' }}
+                              ·
+                              {{ asignacion.noches }}
+                              noche{{ asignacion.noches|pluralize }}
+                            </div>
                         </td>
 
 
@@ -304,7 +314,7 @@
         {{ page_obj.paginator.count }}
         asignación{% if page_obj.paginator.count != 1 %}es{% endif %}
         en esta consulta ·
-        Tarifa fija: $40.000 CLP por pasajero.
+        Tarifa: $40.000 CLP por pasajero y por noche.
 
     </div>
 

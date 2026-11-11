@@ -7,9 +7,16 @@ from django.db.models import F, Q
 from .managers import UsuarioManager
 from .validators import (
     normalizar_rut,
+    validar_numero_habitacion,
     validar_rut,
     validar_telefono,
 )
+
+# Tarifa única del hotel: valor por pasajero y por noche.
+TARIFA_PASAJERO_NOCHE = 40000
+
+# Límite de noches aceptado en una sola estadía.
+MAX_NOCHES_ESTADIA = 365
 
 
 class ConservadoQuerySet(models.QuerySet):
@@ -73,6 +80,9 @@ class Habitacion(models.Model):
         "Número",
         max_length=10,
         unique=True,
+        validators=[
+            validar_numero_habitacion
+        ],
     )
 
     capacidad = models.PositiveIntegerField(
@@ -154,13 +164,20 @@ class Habitacion(models.Model):
             .upper()
         )
 
-        if not self.numero:
-            raise ValidationError(
-                {
-                    "numero":
-                        "Indica el número de habitación."
-                }
-            )
+        # Un número vacío ya lo informa el campo obligatorio;
+        # aquí solo se valida el formato cuando hay un valor.
+        if self.numero:
+            try:
+                validar_numero_habitacion(
+                    self.numero
+                )
+            except ValidationError as error:
+                raise ValidationError(
+                    {
+                        "numero":
+                            error.messages
+                    }
+                )
 
         if self.pk:
             old = (
@@ -538,6 +555,14 @@ class Asignacion(
         blank=True,
     )
 
+    fecha_inicio = models.DateField(
+        "Inicio de la estadía"
+    )
+
+    fecha_termino = models.DateField(
+        "Término de la estadía"
+    )
+
     costo_total = (
         models.PositiveIntegerField(
             editable=False
@@ -557,6 +582,8 @@ class Asignacion(
         "responsable_rut",
         "registrada_por_id",
         "fecha_ingreso",
+        "fecha_inicio",
+        "fecha_termino",
         "costo_total",
     )
 
@@ -608,7 +635,25 @@ class Asignacion(
                     "asignacion_fechas_coherentes"
                 ),
             ),
+            models.CheckConstraint(
+                condition=Q(
+                    fecha_termino__gt=F(
+                        "fecha_inicio"
+                    )
+                ),
+                name=(
+                    "asignacion_estadia_minimo_una_noche"
+                ),
+            ),
         ]
+
+    @property
+    def noches(self):
+        return (
+            self.fecha_termino
+            -
+            self.fecha_inicio
+        ).days
 
     @property
     def cantidad_pasajeros(self):
@@ -697,11 +742,19 @@ class DetalleHabitacionAsignada(
         ]
 
     @property
+    def cantidad_pasajeros(self):
+        return len(
+            self.hospedajes.all()
+        )
+
+    @property
     def costo(self):
         return (
-            self.capacidad_snapshot
+            self.cantidad_pasajeros
             *
-            40000
+            self.asignacion.noches
+            *
+            TARIFA_PASAJERO_NOCHE
         )
 
 
