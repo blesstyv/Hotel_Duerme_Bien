@@ -185,16 +185,16 @@ class BoletaEstadiaTests(HotelTestCase):
 class ImagenDelHotelTests(HotelTestCase):
     def test_login_muestra_la_imagen_del_hotel(self):
         response = self.client.get(url("login"))
-        self.assertContains(response, "hotel_fachada")
+        self.assertContains(response, "hotel_foto")
         self.assertContains(response, "Fachada del Hotel Duerme Bien")
 
     def test_panel_del_encargado_muestra_la_imagen_del_hotel(self):
         self.client.force_login(self.encargado)
-        self.assertContains(self.client.get(url("inicio"), follow=True), "hotel_fachada")
+        self.assertContains(self.client.get(url("inicio"), follow=True), "hotel_foto")
 
     def test_panel_del_administrador_muestra_la_imagen_del_hotel(self):
         self.client.force_login(self.admin_user)
-        self.assertContains(self.client.get(url("inicio"), follow=True), "hotel_fachada")
+        self.assertContains(self.client.get(url("inicio"), follow=True), "hotel_foto")
 
 
 class RepresentanteDelGrupoTests(HotelTestCase):
@@ -333,4 +333,11 @@ class HotelImageFallbackTests(_TC):
     def test_login_muestra_imagen_del_hotel(self):
         r = self.client.get("/login/")
         self.assertContains(r, "login-hotel-image")
-        self.assertRegex(r.content.decode(), r"hotel/img/hotel_(fachada|foto)[^\"]*\.(svg|jpg)")
+        self.assertRegex(r.content.decode(), r"hotel/img/hotel_foto[^\"]*\.jpg")
+
+    def test_la_foto_real_existe_y_es_jpeg_valido(self):
+        from pathlib import Path
+        from django.conf import settings
+        ruta = Path(settings.BASE_DIR) / "hotel" / "static" / "hotel" / "img" / "hotel_foto.jpg"
+        self.assertTrue(ruta.exists())
+        self.assertEqual(ruta.read_bytes()[:3], b"\xff\xd8\xff")

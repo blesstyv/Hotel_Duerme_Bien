@@ -13,7 +13,7 @@ Aprendizaje esperado 3.1.5: corregir el código del prototipo a partir de los re
 | Representante del grupo | Es obligatorio, debe pertenecer al grupo y figura en el detalle, el listado y la boleta | `validar_asignacion`, `asignacion_form.html` | `RepresentanteDelGrupoTests` |
 | Cálculo del valor | Pasajeros × noches × $40.000, calculado en el servidor | `services.calcular_costo`, `DetalleHabitacionAsignada.costo` | `EstadiaYCostoTests` |
 | Vistas de habitaciones | Cada habitación tiene vista al mar o a la ciudad; se elige al crear/editar, se filtra al asignar y aparece en la boleta | `Habitacion.vista`, formularios y plantillas | `test_vista_habitacion.py`, `BoletaEstadiaTests` |
-| Interfaz de inicio | Ilustración de la fachada del hotel (con ambas vistas) en el inicio de sesión y en el panel de cada rol | `img/hotel_fachada.svg`, `login.html`, dashboards, `improvements.css` | `ImagenDelHotelTests` |
+| Interfaz de inicio | Fotografía real del hotel en el inicio de sesión y en el panel de cada rol (la ilustración `hotel_fachada.svg` queda solo como respaldo si falta la foto) | `img/hotel_foto.jpg`, `hotel_image` (hotel_tags), `login.html`, dashboards, `improvements.css` | `ImagenDelHotelTests` |
 | Fechas de la estadía | Inicio y término obligatorios, término posterior al inicio, inicio no anterior a hoy, máximo 365 noches | `validar_estadia`, `AsignacionForm`, `CheckConstraint` | `EstadiaYCostoTests`, `FormatoFechaEstadiaTests` |
 | Boleta de estadía | Documento imprimible con folio, representante, fechas, noches, pasajeros por habitación, vista, tarifa, subtotales y total | `views.asignacion_boleta`, `boleta.html`, `boleta.js` | `BoletaEstadiaTests` |
 | Reglas del negocio | Ver la tabla siguiente | — | Suite completa |
@@ -86,3 +86,8 @@ Observación honesta sobre las estadías superpuestas: por la interfaz, el formu
 
 - Regla 4.6 del caso (varias habitaciones solo si el grupo supera la habitación más grande disponible): el sistema permite usar varias habitaciones siempre. No se endureció para no bloquear asignaciones legítimas; queda como decisión del equipo.
 - La vista que se imprime en la boleta se lee de la habitación actual; congelarla por asignación requeriría una migración.
+
+
+## Imagen real del hotel
+
+La fotografía fue entregada por el equipo del proyecto (`hotel_foto.jpg`, 736×736 px). La imagen trae una marca de agua de texto (`@bystudiotm`) incorporada en la foto original; antes de la presentación conviene confirmar que su uso esté permitido o reemplazarla por una foto propia del equipo, copiándola con el mismo nombre.
