@@ -825,9 +825,33 @@
         </div>
 
 
-        <div class="split-grid">
+        <div class="preview-split">
 
-          <div>
+          <div class="preview-main">
+
+<div class="selected-responsable">
+
+              {% icon 'crown' %}
+
+              <div>
+
+                <small>
+                  Representante del grupo
+                </small>
+
+                <strong>
+                  {{ preview.responsable.nombre_completo }}
+                </strong>
+
+                <small>
+                  {{ preview.responsable.rut }}
+                </small>
+
+              </div>
+
+            </div>
+
+
 
             {% for group in preview.habitaciones %}
 
@@ -879,30 +903,7 @@
           </div>
 
 
-          <div>
-
-            <div class="selected-responsable">
-
-              {% icon 'crown' %}
-
-              <div>
-
-                <small>
-                  Representante del grupo
-                </small>
-
-                <strong>
-                  {{ preview.responsable.nombre_completo }}
-                </strong>
-
-                <small>
-                  {{ preview.responsable.rut }}
-                </small>
-
-              </div>
-
-            </div>
-
+          <div class="preview-summary-card">
 
             <dl class="summary-list">
 

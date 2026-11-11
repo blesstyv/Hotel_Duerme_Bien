@@ -66,3 +66,14 @@ def dict_get(mapping, key):
 def as_string(value):
     return str(value)
 
+
+
+@register.simple_tag
+def hotel_image():
+    """Foto real del hotel si existe (hotel/img/hotel_foto.jpg); si no, la ilustración SVG."""
+    from django.contrib.staticfiles import finders
+    from django.templatetags.static import static
+
+    if finders.find("hotel/img/hotel_foto.jpg"):
+        return static("hotel/img/hotel_foto.jpg")
+    return static("hotel/img/hotel_fachada.svg")

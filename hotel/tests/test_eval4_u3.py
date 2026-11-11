@@ -322,3 +322,15 @@ class VistaVisibleEnElSistemaTests(HotelTestCase):
         self.client.force_login(self.encargado)
         self.client.post(url("habitacion_crear"), {"numero": "303", "capacidad": "2", "orientacion": "NORTE", "vista": "BOSQUE"})
         self.assertFalse(Habitacion.objects.filter(numero="303").exists())
+
+
+from django.test import TestCase as _TC
+
+
+class HotelImageFallbackTests(_TC):
+    """La imagen de inicio usa la foto real si existe y, si no, la ilustración SVG."""
+
+    def test_login_muestra_imagen_del_hotel(self):
+        r = self.client.get("/login/")
+        self.assertContains(r, "login-hotel-image")
+        self.assertRegex(r.content.decode(), r"hotel/img/hotel_(fachada|foto)[^\"]*\.(svg|jpg)")

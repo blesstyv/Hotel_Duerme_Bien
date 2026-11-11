@@ -172,3 +172,93 @@
 @media (max-width: 760px) {
     .hotel-banner figcaption { display: none; }
 }
+
+
+/* =========================================================
+   VISTA PREVIA DE LA ASIGNACIÓN: columnas equilibradas
+   ========================================================= */
+
+.preview-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+    gap: 24px;
+    align-items: start;
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.preview-main .selected-responsable {
+    margin-bottom: 6px;
+}
+
+.preview-main .preview-group {
+    padding: 16px 0;
+}
+
+.preview-summary-card {
+    padding: 8px 20px 16px;
+    background: #fafbfd;
+    border: 1px solid #e3e8f0;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(30, 41, 65, .05);
+}
+
+.preview-summary-card .summary-list > div:first-child {
+    padding-top: 14px;
+}
+
+.preview-heading {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 900px) {
+    .preview-split {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Foto real: se recorta para llenar el marco sin deformarse. */
+.hotel-banner img[src$=".jpg"] { object-fit: cover; }
+.login-story img.login-hotel-image[src$=".jpg"] { aspect-ratio: 16 / 10; object-fit: cover; }
+
+
+/* =========================================================
+   MENOS ESPACIO VACÍO EN EL FORMULARIO DE ASIGNACIÓN
+   ========================================================= */
+
+.assignment-distribution {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+}
+
+.room-options {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.assignment-bottom {
+    align-items: start;
+}
+
+@media (max-width: 760px) {
+    .room-options { grid-template-columns: 1fr 1fr; }
+}
+
+.preview-main .preview-group {
+    margin-top: 12px;
+    padding: 18px 20px;
+    background: #fff;
+    border: 1px solid #e3e8f0;
+    border-radius: 12px;
+}
+
+.preview-main .preview-group:last-child { border-bottom: 1px solid #e3e8f0; }
+.preview-main .preview-group h3 { font-size: 14px; }
+.preview-main .preview-passengers { margin-top: 14px; gap: 9px; }
+.preview-main .preview-passengers li { font-size: 12px; padding: 8px 12px; border-radius: 7px; }
+.preview-main .selected-responsable { padding: 18px 20px; border-radius: 12px; }
+.preview-main .selected-responsable strong { font-size: 15px; }
+.preview-main .selected-responsable small { font-size: 11px; }
+.preview-summary-card .summary-list > div { padding: 9px 0; }
+.preview-summary-card .summary-list dt { font-size: 12px; }
+.preview-summary-card .summary-list dd { font-size: 13px; }
