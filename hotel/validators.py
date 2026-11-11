@@ -115,3 +115,29 @@ def validar_numero_habitacion(value):
             "dígitos (1 a 5), sin letras ni símbolos y "
             "sin ceros iniciales. Ejemplo: 101."
         )
+
+
+def validar_nombre_persona(value, etiqueta="nombre"):
+    """
+    Un nombre de persona debe contener letras. No se aceptan nombres
+    formados solo por números ni dígitos o símbolos mezclados con el
+    nombre. Se permiten letras (con tildes y ñ), espacios, apóstrofe,
+    guion y punto (ej.: María José O'Higgins-Pérez Jr.).
+    """
+    texto = " ".join(str(value or "").split())
+
+    if not any(c.isalpha() for c in texto):
+        raise ValidationError(
+            f"El {etiqueta} debe contener letras; "
+            "no puede estar formado solo por números "
+            "ni por símbolos."
+        )
+
+    if not re.fullmatch(r"[^\W\d_]+(?:[ '\-.][^\W\d_]+)*\.?", texto):
+        raise ValidationError(
+            f"El {etiqueta} solo puede incluir letras, "
+            "espacios, apóstrofe, guion y punto; "
+            "no se admiten números ni otros símbolos."
+        )
+
+    return texto

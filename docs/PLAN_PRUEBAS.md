@@ -109,3 +109,16 @@ Para RNF-02, registrar equipo, tamaño de base, ruta, número de mediciones y du
 ```
 
 Guardar evidencia con fecha, comando, número de casos, salida final, fallos y correcciones. Solo marcar un RF como implementado verificado cuando existen su comportamiento, prueba adecuada y ejecución exitosa. Los resultados efectivos de esta entrega se encuentran en `docs/EVIDENCIAS_E3.md`.
+
+## Casos de la Evaluación U4
+
+| Caso | Acción | Resultado esperado |
+|---|---|---|
+| CP-56 | Registrar un pasajero con nombre `123456`, `000` o `$$$` | Rechazo con mensaje; no se crea el registro. |
+| CP-57 | Registrar nombre válido con tildes, guion o apóstrofe | Se guarda con espacios normalizados. |
+| CP-58 | Crear un encargado con nombre o apellido numérico | Rechazo con mensaje. |
+| CP-59 | Asignar a una persona que ya tiene una estadía con fechas superpuestas | Rechazo indicando habitación y fechas de la otra estadía. |
+| CP-60 | Asignar a una persona ya hospedada con fechas sin superposición | Rechazo (hospedaje activo único). |
+| CP-61 | Abrir la boleta de una asignación | Folio, representante, fechas, noches, pasajeros por habitación, vista, tarifa, subtotales y total correctos. |
+| CP-62 | Abrir la boleta sin sesión, como Administrador o con id inexistente | Redirección al login, acceso denegado y 404. |
+| CP-63 | Abrir el inicio de sesión y el panel | La imagen del hotel se muestra. |

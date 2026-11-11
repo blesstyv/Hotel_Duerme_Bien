@@ -70,6 +70,19 @@ def validar_asignacion(distribucion, responsable_id, user, fecha_inicio, fecha_t
             raise ValidationError(f'Selecciona al menos un pasajero para la habitación {room.numero}.')
         if len(pids) > room.capacidad:
             raise ValidationError(f'La habitación {room.numero} admite como máximo {room.capacidad} pasajeros; seleccionaste {len(pids)}.')
+    choque = (Hospedaje.objects
+              .filter(pasajero_id__in=all_ids, activa=True,
+                      detalle__asignacion__fecha_inicio__lt=fecha_termino,
+                      detalle__asignacion__fecha_termino__gt=fecha_inicio)
+              .select_related('detalle__asignacion', 'detalle__habitacion')
+              .first())
+    if choque:
+        otra = choque.detalle.asignacion
+        raise ValidationError(
+            f'{choque.nombre_snapshot} ya está registrado/a en la habitación {choque.detalle.numero_snapshot} '
+            f'del {otra.fecha_inicio:%d/%m/%Y} al {otra.fecha_termino:%d/%m/%Y} (asignación #{otra.pk:04d}), '
+            'y esas fechas se superponen con la estadía indicada. '
+            'Una misma persona no puede estar en dos habitaciones al mismo tiempo.')
     if Hospedaje.objects.filter(pasajero_id__in=all_ids, activa=True).exists():
         raise ValidationError('Uno o más pasajeros ya se encuentran hospedados en una asignación activa.')
     responsible = _id(responsable_id)

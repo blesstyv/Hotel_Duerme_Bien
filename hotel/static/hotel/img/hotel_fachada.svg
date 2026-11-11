@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="t d">
+  <title id="t">Fachada del Hotel Duerme Bien</title>
+  <desc id="d">Ilustración del hotel con vista al mar a la izquierda y a la ciudad a la derecha.</desc>
+  <defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe6ea"/>
+      <stop offset="1" stop-color="#fff8f2"/>
+    </linearGradient>
+    <linearGradient id="mar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5aa9d6"/>
+      <stop offset="1" stop-color="#2f78a8"/>
+    </linearGradient>
+    <linearGradient id="fachada" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f1f3f8"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="520" fill="url(#cielo)"/>
+  <circle cx="190" cy="105" r="46" fill="#ffd27a" opacity=".95"/>
+  <g fill="#fff" opacity=".9">
+    <ellipse cx="420" cy="90" rx="62" ry="17"/><ellipse cx="465" cy="80" rx="42" ry="15"/>
+    <ellipse cx="900" cy="70" rx="70" ry="18"/><ellipse cx="950" cy="60" rx="44" ry="14"/>
+  </g>
+
+  <!-- Mar (vista al mar) -->
+  <rect x="0" y="330" width="470" height="190" fill="url(#mar)"/>
+  <g fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6">
+    <path d="M30 372q18-12 36 0t36 0t36 0"/><path d="M180 404q18-12 36 0t36 0t36 0"/>
+    <path d="M60 440q18-12 36 0t36 0t36 0"/><path d="M290 358q18-12 36 0t36 0t36 0"/>
+    <path d="M250 462q18-12 36 0t36 0t36 0"/>
+  </g>
+  <path d="M0 330h470" stroke="#fff" stroke-width="3" opacity=".7"/>
+
+  <!-- Ciudad (vista a la ciudad) -->
+  <g fill="#34476b">
+    <rect x="745" y="250" width="58" height="270"/><rect x="812" y="300" width="48" height="220"/>
+    <rect x="868" y="220" width="64" height="300"/><rect x="942" y="285" width="50" height="235"/>
+    <rect x="1002" y="240" width="60" height="280"/><rect x="1072" y="310" width="52" height="210"/>
+    <rect x="1132" y="265" width="68" height="255"/>
+  </g>
+  <g fill="#ffd27a" opacity=".85">
+    <rect x="757" y="268" width="10" height="12"/><rect x="777" y="268" width="10" height="12"/>
+    <rect x="757" y="300" width="10" height="12"/><rect x="777" y="332" width="10" height="12"/>
+    <rect x="882" y="240" width="10" height="12"/><rect x="906" y="272" width="10" height="12"/>
+    <rect x="882" y="304" width="10" height="12"/><rect x="906" y="336" width="10" height="12"/>
+    <rect x="1016" y="262" width="10" height="12"/><rect x="1040" y="294" width="10" height="12"/>
+    <rect x="1016" y="326" width="10" height="12"/><rect x="1150" y="288" width="10" height="12"/>
+    <rect x="1174" y="320" width="10" height="12"/><rect x="954" y="306" width="10" height="12"/>
+  </g>
+
+  <!-- Suelo -->
+  <rect x="0" y="470" width="1200" height="50" fill="#e9ecf3"/>
+  <rect x="0" y="470" width="1200" height="6" fill="#cfd5e2"/>
+
+  <!-- Hotel -->
+  <g>
+    <rect x="395" y="150" width="410" height="322" rx="6" fill="url(#fachada)" stroke="#d3d8e4" stroke-width="3"/>
+    <rect x="375" y="132" width="450" height="34" rx="6" fill="#14213d"/>
+    <rect x="375" y="160" width="450" height="8" fill="#cc1234"/>
+    <text x="600" y="157" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="3" fill="#fff">HOTEL DUERME BIEN</text>
+
+    <!-- Ventanas: 4 pisos x 6 -->
+    <g fill="#a9c9e6" stroke="#14213d" stroke-width="2">
+      <rect x="425" y="190" width="42" height="46" rx="3"/><rect x="487" y="190" width="42" height="46" rx="3"/><rect x="549" y="190" width="42" height="46" rx="3"/>
+      <rect x="611" y="190" width="42" height="46" rx="3"/><rect x="673" y="190" width="42" height="46" rx="3"/><rect x="735" y="190" width="42" height="46" rx="3"/>
+      <rect x="425" y="256" width="42" height="46" rx="3"/><rect x="487" y="256" width="42" height="46" rx="3"/><rect x="549" y="256" width="42" height="46" rx="3"/>
+      <rect x="611" y="256" width="42" height="46" rx="3"/><rect x="673" y="256" width="42" height="46" rx="3"/><rect x="735" y="256" width="42" height="46" rx="3"/>
+      <rect x="425" y="322" width="42" height="46" rx="3"/><rect x="487" y="322" width="42" height="46" rx="3"/><rect x="549" y="322" width="42" height="46" rx="3"/>
+      <rect x="611" y="322" width="42" height="46" rx="3"/><rect x="673" y="322" width="42" height="46" rx="3"/><rect x="735" y="322" width="42" height="46" rx="3"/>
+    </g>
+    <g fill="#ffd27a" opacity=".9">
+      <rect x="489" y="258" width="38" height="42" rx="2"/><rect x="675" y="324" width="38" height="42" rx="2"/><rect x="613" y="192" width="38" height="42" rx="2"/>
+    </g>
+    <g fill="#cc1234">
+      <rect x="425" y="236" width="42" height="6"/><rect x="487" y="236" width="42" height="6"/><rect x="549" y="236" width="42" height="6"/>
+      <rect x="611" y="236" width="42" height="6"/><rect x="673" y="236" width="42" height="6"/><rect x="735" y="236" width="42" height="6"/>
+    </g>
+
+    <!-- Entrada -->
+    <rect x="545" y="396" width="110" height="76" fill="#14213d"/>
+    <rect x="552" y="403" width="45" height="69" fill="#a9c9e6"/><rect x="603" y="403" width="45" height="69" fill="#a9c9e6"/>
+    <path d="M520 396 h160 l-14 -26 h-132z" fill="#cc1234"/>
+    <rect x="520" y="394" width="160" height="6" fill="#9c0d28"/>
+  </g>
+
+  <!-- Árboles -->
+  <g>
+    <rect x="338" y="418" width="9" height="54" fill="#7a5a3a"/><circle cx="342" cy="410" r="34" fill="#2f9e6a"/><circle cx="324" cy="428" r="22" fill="#3bb27a"/>
+    <rect x="852" y="418" width="9" height="54" fill="#7a5a3a"/><circle cx="856" cy="410" r="34" fill="#2f9e6a"/><circle cx="874" cy="428" r="22" fill="#3bb27a"/>
+  </g>
+
+  <!-- Rótulos de vistas -->
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="600">
+    <rect x="95" y="268" width="170" height="34" rx="17" fill="#fff" opacity=".92"/>
+    <text x="180" y="291" text-anchor="middle" fill="#2f78a8">Vista al mar</text>
+    <rect x="930" y="170" width="190" height="34" rx="17" fill="#fff" opacity=".92"/>
+    <text x="1025" y="193" text-anchor="middle" fill="#34476b">Vista a la ciudad</text>
+  </g>
+</svg>

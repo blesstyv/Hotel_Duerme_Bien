@@ -424,6 +424,20 @@ def asignacion_detalle(request, pk):
 
 
 @encargado_required
+@require_GET
+def asignacion_boleta(request, pk):
+    """Boleta de la estadía: documento imprimible con el detalle del cobro."""
+    assignment = get_object_or_404(_asignaciones(), pk=pk)
+    return render(request, "hotel/boleta.html", {
+        "asignacion": assignment,
+        "detalles": assignment.detalles.select_related("habitacion").prefetch_related("hospedajes"),
+        "tarifa": TARIFA_PASAJERO,
+        "folio": f"{assignment.pk:06d}",
+        "title": f"Boleta de estadía N° {assignment.pk:06d}",
+    })
+
+
+@encargado_required
 @require_POST
 def asignacion_liberar(request, pk):
     get_object_or_404(Asignacion, pk=pk)

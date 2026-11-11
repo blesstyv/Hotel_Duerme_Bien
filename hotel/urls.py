@@ -160,6 +160,12 @@ urlpatterns = [
     ),
 
     path(
+        "asignaciones/<int:pk>/boleta/",
+        views.asignacion_boleta,
+        name="asignacion_boleta",
+    ),
+
+    path(
         "asignaciones/<int:pk>/salida/",
         views.asignacion_liberar,
         name="asignacion_liberar",

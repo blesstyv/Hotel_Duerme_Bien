@@ -32,7 +32,7 @@
         </span>
 
         <div>
-            <small>Responsable del grupo</small>
+            <small>Representante del grupo</small>
             <strong>
                 {{ asignacion.responsable_nombre }}
             </strong>
@@ -46,7 +46,7 @@
         </span>
 
         <div>
-            <small>RUT responsable</small>
+            <small>RUT del representante</small>
             <strong>
                 {{ asignacion.responsable_rut }}
             </strong>
@@ -429,6 +429,17 @@
                 href="{% url 'hotel:asignacion_list' %}"
             >
                 Volver
+            </a>
+
+
+            <a
+                class="btn btn-secondary"
+                href="{% url 'hotel:asignacion_boleta' asignacion.pk %}"
+                target="_blank"
+                rel="noopener"
+            >
+                {% icon 'money' %}
+                Ver boleta
             </a>
 
 

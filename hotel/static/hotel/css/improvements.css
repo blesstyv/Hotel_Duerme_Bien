@@ -117,3 +117,58 @@
         min-width: 0;
     }
 }
+
+/* =========================================================
+   IMAGEN DEL HOTEL EN LA INTERFAZ DE INICIO
+   ========================================================= */
+
+.login-story-inner {
+    max-width: 520px;
+}
+
+.login-story img.login-hotel-image {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    margin: 28px 0 0;
+    border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(20, 33, 61, .12);
+}
+
+.hotel-banner {
+    position: relative;
+    margin: 0 0 22px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #fce0e6;
+    background: linear-gradient(180deg, #ffe6ea 0%, #fff8f2 100%);
+    box-shadow: 0 3px 15px rgba(30, 41, 65, .06);
+}
+
+.hotel-banner img {
+    display: block;
+    width: 100%;
+    height: clamp(150px, 22vw, 250px);
+    object-fit: contain;
+}
+
+.hotel-banner figcaption {
+    position: absolute;
+    left: 18px;
+    bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 14px;
+    background: rgba(20, 33, 61, .82);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.hotel-banner figcaption strong {
+    font-size: 15px;
+}
+
+@media (max-width: 760px) {
+    .hotel-banner figcaption { display: none; }
+}

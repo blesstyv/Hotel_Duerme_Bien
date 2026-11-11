@@ -27,6 +27,7 @@ from .models import (
 )
 from .validators import (
     normalizar_rut,
+    validar_nombre_persona,
     validar_numero_habitacion,
     validate_safe_id_list,
     validate_safe_positive_id,
@@ -250,6 +251,18 @@ class EncargadoCreationForm(
             "autocomplete"
         ] = "new-password"
 
+    def clean_first_name(self):
+        return validar_nombre_persona(
+            self.cleaned_data["first_name"],
+            "nombre",
+        )
+
+    def clean_last_name(self):
+        return validar_nombre_persona(
+            self.cleaned_data["last_name"],
+            "apellido",
+        )
+
     def clean_username(self):
         username = (
             self.cleaned_data[
@@ -384,6 +397,18 @@ class EncargadoEditForm(
         self.fields[
             "last_name"
         ].required = True
+
+    def clean_first_name(self):
+        return validar_nombre_persona(
+            self.cleaned_data["first_name"],
+            "nombre",
+        )
+
+    def clean_last_name(self):
+        return validar_nombre_persona(
+            self.cleaned_data["last_name"],
+            "apellido",
+        )
 
     def clean_username(self):
         username = (
@@ -787,7 +812,10 @@ class PasajeroForm(
                 "completo del pasajero."
             )
 
-        return nombre
+        return validar_nombre_persona(
+            nombre,
+            "nombre del pasajero",
+        )
 
 
 

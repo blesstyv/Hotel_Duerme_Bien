@@ -7,6 +7,7 @@ from django.db.models import F, Q
 from .managers import UsuarioManager
 from .validators import (
     normalizar_rut,
+    validar_nombre_persona,
     validar_numero_habitacion,
     validar_rut,
     validar_telefono,
@@ -298,6 +299,29 @@ class Pasajero(models.Model):
                 {
                     "nombre_completo":
                         "Indica el nombre completo."
+                }
+            )
+
+    def clean_fields(self, exclude=None):
+        super().clean_fields(exclude=exclude)
+
+        # Solo se valida el nombre cuando el formulario lo incluye;
+        # así no se bloquea editar teléfono o correo de pasajeros antiguos.
+        if exclude and "nombre_completo" in exclude:
+            return
+
+        try:
+            self.nombre_completo = (
+                validar_nombre_persona(
+                    self.nombre_completo,
+                    "nombre del pasajero",
+                )
+            )
+        except ValidationError as exc:
+            raise ValidationError(
+                {
+                    "nombre_completo":
+                        exc.messages
                 }
             )
 

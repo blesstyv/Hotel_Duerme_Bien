@@ -49,3 +49,13 @@ Para compactar los identificadores: `V` corresponde a `hotel.tests.test_views` y
 | Respaldo con integridad | `hotel.tests.test_commands.CommandTests.test_backup_integrity`. |
 
 La matriz funcional no declara completos los RNF operacionales. HTTPS real, disponibilidad continua, respaldo programado, compatibilidad completa y rendimiento a escala requieren evidencia adicional descrita en `docs/REQUERIMIENTOS_E2.md` y `docs/DESPLIEGUE_CLOUD.md`.
+
+## Evaluación U4 (proyecto final)
+
+| Requisito de la evaluación | Regla | Evidencia |
+|---|---|---|
+| Nombres sin solo números | Validación de nombres de personas | `NombresDePersonasTests`, CP-56 a CP-58 |
+| Sin registros simultáneos en la misma fecha | Una persona, una habitación por periodo | `EstadiasSuperpuestasTests`, CP-59 y CP-60 |
+| Representante del grupo | RN-17 | `RepresentanteDelGrupoTests` |
+| Boleta de la estadía | RN-01 | `BoletaEstadiaTests`, CP-61 y CP-62 |
+| Imagen del hotel en el inicio | — | `ImagenDelHotelTests`, CP-63 |

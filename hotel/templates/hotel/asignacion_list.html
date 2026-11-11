@@ -29,7 +29,7 @@
                     id="search"
                     name="q"
                     value="{{ q }}"
-                    placeholder="Buscar por responsable, RUT o habitación…"
+                    placeholder="Buscar por representante, RUT o habitación…"
                     maxlength="100"
                 >
 
@@ -127,7 +127,7 @@
 
                 <tr>
                     <th>Asignación</th>
-                    <th>Responsable</th>
+                    <th>Representante</th>
                     <th>Pasajeros</th>
                     <th>Habitaciones</th>
                     <th>Ingreso</th>
@@ -257,6 +257,17 @@
                                 aria-label="Ver asignación {{ asignacion.pk }}"
                             >
                                 {% icon 'eye' %}
+                            </a>
+
+                            <a
+                                class="icon-button"
+                                href="{% url 'hotel:asignacion_boleta' asignacion.pk %}"
+                                title="Ver boleta"
+                                aria-label="Ver boleta de la asignación {{ asignacion.pk }}"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                {% icon 'money' %}
                             </a>
 
                         </td>
