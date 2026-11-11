@@ -17,7 +17,7 @@ Aprendizaje esperado 3.1.5: corregir el código del prototipo a partir de los re
 | Fechas de la estadía | Inicio y término obligatorios, término posterior al inicio, inicio no anterior a hoy, máximo 365 noches | `validar_estadia`, `AsignacionForm`, `CheckConstraint` | `EstadiaYCostoTests`, `FormatoFechaEstadiaTests` |
 | Boleta de estadía | Documento imprimible con folio, representante, fechas, noches, pasajeros por habitación, vista, tarifa, subtotales y total | `views.asignacion_boleta`, `boleta.html`, `boleta.js` | `BoletaEstadiaTests` |
 | Reglas del negocio | Ver la tabla siguiente | — | Suite completa |
-| Pruebas, corrección y seguridad | 188 pruebas automatizadas, controles de seguridad y mapeo ISO | `hotel/tests/` | Ejecución registrada abajo |
+| Pruebas, corrección y seguridad | 198 pruebas automatizadas, controles de seguridad y mapeo ISO | `hotel/tests/` | Ejecución registrada abajo |
 
 ## Reglas del negocio verificadas
 
@@ -63,6 +63,26 @@ python manage.py makemigrations --check --dry-run
 
 Resultados de esta etapa (2026-11-11, rama `feat/eval4-u3-boleta-validaciones`):
 
-- `manage.py test`: 188 pruebas, 0 fallos (162 anteriores + 26 nuevas de la evaluación U4).
+- `manage.py test`: 198 pruebas, 0 fallos (162 anteriores + 36 nuevas de la evaluación U4).
 - `manage.py check`: sin problemas. `makemigrations --check`: sin cambios pendientes (esta etapa no agrega migraciones).
-- Revisión manual en Chrome: nombres `123456` y `000` rechazados con el mensaje correspondiente; boleta de la asignación #5 muestra folio 000005, representante, 2 noches, tarifa $40.000 y total $80.000; la imagen del hotel aparece en el inicio de sesión y en el panel.
+- Simulación del despliegue de Render (modo producción, HTTPS local, `collectstatic`, `migrate` y `seed_demo` sobre una copia de una base creada con la versión anterior, que contenía datos): 46 de 46 comprobaciones aprobadas con Chrome, incluida la boleta de una asignación antigua migrada.
+
+## Auditoría rigurosa previa a la entrega
+
+Se revisó cada criterio de la rúbrica con entradas hostiles y no solo con el camino feliz. Hallazgos y correcciones:
+
+| Hallazgo | Corrección |
+|---|---|
+| La vista (mar/ciudad) solo se mostraba en el listado de habitaciones y en la boleta; faltaba en la ocupación, el detalle de asignación y el historial de habitación | Se muestra en todas esas pantallas |
+| El texto "responsable" seguía en varias pantallas y mensajes, mientras la evaluación habla de representante | Unificado como "representante" en formularios, mensajes y tablas |
+| El validador del número de habitación toleraba espacios o tabulaciones alrededor del número | Ahora es estricto; el formulario normaliza los espacios antes de validar |
+| La boleta no indicaba cuándo se emitió | Se agregó "Boleta emitida el" |
+
+Entradas probadas y rechazadas para el número de habitación: `0`, `00`, `01`, `007`, `-5`, `+5`, `1.5`, `1,5`, `1e3`, `12A`, `A12`, `1 2`, `10-1`, dígitos árabes (`١٢٣`) y de ancho completo, `²`, `½`, `123456`, vacío y espacios o saltos de línea. Para nombres: `123`, `12 34`, `Juan2`, `R2D2`, `Ana_`, `<script>`, `'; DROP TABLE`, dígitos árabes, `①②` y caracteres de control; y aceptados: nombres con tildes, ñ, apóstrofe, guion, punto y alfabetos no latinos.
+
+Observación honesta sobre las estadías superpuestas: por la interfaz, el formulario ya bloquea a cualquier persona con un hospedaje activo (no aparece en la lista y un envío manipulado se rechaza); el servicio repite la validación y, cuando hay fechas superpuestas, informa la habitación y las fechas de la otra estadía.
+
+## Decisiones abiertas
+
+- Regla 4.6 del caso (varias habitaciones solo si el grupo supera la habitación más grande disponible): el sistema permite usar varias habitaciones siempre. No se endureció para no bloquear asignaciones legítimas; queda como decisión del equipo.
+- La vista que se imprime en la boleta se lee de la habitación actual; congelarla por asignación requeriría una migración.
