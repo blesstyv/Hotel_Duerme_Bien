@@ -127,4 +127,5 @@ La estadía vencida sin salida registrada no se cierra sola: se señala y la sal
 ### Límites declarados
 
 - Para las asignaciones anteriores a la migración, la vista guardada es la que tenía la habitación al migrar (es el único dato disponible).
-- Las pruebas se ejecutaron en entorno local con SQLite; no se probó contra la base de Render.
+- Simulación de producción (modo producción, HTTPS local, `collectstatic`, `migrate` y `seed_demo` sobre una copia de una base antigua con datos): 46 de 46 comprobaciones previas y 11 de 11 nuevas aprobadas con Chrome (desactivar y reactivar con sus confirmaciones, filtro por vista, edición manipulada de un pasajero hospedado, boleta antigua migrada).
+- Las pruebas se ejecutaron en entorno local con SQLite; no se probó contra la base de Render ni con el sitio público.
