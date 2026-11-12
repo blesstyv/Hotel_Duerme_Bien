@@ -17,7 +17,7 @@ flowchart TD
 |---|---|---|
 | Presentación | `hotel/templates/hotel/`, `hotel/static/hotel/` | Mostrar datos, navegación y ayuda para distribuir pasajeros. |
 | Aplicación | `hotel/views.py`, `forms.py`, `decorators.py`, `urls.py` | Validar solicitudes, proteger rutas, seleccionar pantallas y mensajes. |
-| Negocio | `hotel/services.py` | Asignación exacta, responsable, costo, cierre, baja controlada y ocupación. |
+| Negocio | `hotel/services.py` | Asignación (1 a capacidad máxima por habitación), representante, costo, cierre, baja controlada y ocupación. |
 | Dominio | `hotel/models.py` | Entidades, relaciones, unicidad, estados e integridad histórica. |
 | Persistencia | ORM, `hotel/migrations/` y SQLite | Consultas parametrizadas, esquema y transacciones. |
 | Configuración | `config/settings.py`, `.env` | Entorno, secretos, sesiones, hosts y transporte. |
@@ -55,7 +55,7 @@ sequenceDiagram
     V->>S: Solicitud validada y usuario
     S->>DB: Iniciar transacción de escritura
     S->>DB: Leer disponibilidad actual
-    S->>S: Rol, grupo, exactitud y responsable
+    S->>S: Rol, grupo, capacidad máxima y representante
     alt Alguna regla falla
         S-->>V: Error específico, rollback completo
         V-->>E: Corregir selección

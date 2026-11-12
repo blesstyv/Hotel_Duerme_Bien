@@ -59,3 +59,9 @@ La matriz funcional no declara completos los RNF operacionales. HTTPS real, disp
 | Representante del grupo | RN-17 | `RepresentanteDelGrupoTests` |
 | Boleta de la estadía | RN-01 | `BoletaEstadiaTests`, CP-61 y CP-62 |
 | Imagen del hotel en el inicio | — | `ImagenDelHotelTests`, CP-63 |
+| Reactivar habitaciones inactivas | RF-24 | `services.reactivar_habitacion`, `views.habitacion_reactivar`; `ReactivacionDeHabitacionesTests`, CP-64 a CP-66 |
+| Filtro de habitaciones por vista | — | `views.habitacion_list`; `FiltroPorVistaTests`, CP-67 |
+| Nombre y RUT intocables con hospedaje activo | RN-17 | `PasajeroForm`, `Pasajero.save`; `EdicionSeguraDePasajerosTests`, CP-68 |
+| Vista y tarifa congeladas en la boleta | RN-01 | `Asignacion.tarifa_aplicada`, `DetalleHabitacionAsignada.vista_snapshot`, migración 0005; `IntegridadHistoricaDeBoletasTests`, `CompatibilidadConAsignacionesAnterioresTests`, CP-69 y CP-72 |
+| Estadías vencidas o con inicio futuro señaladas | — | `Asignacion.vencida`, `Asignacion.inicio_programado`; `EstadosDeFechaTests`, CP-70 |
+| Capacidad como máximo (1 a capacidad) | RF-12 | `HabitacionForm`; `CapacidadMaximaTests`, CP-71 |

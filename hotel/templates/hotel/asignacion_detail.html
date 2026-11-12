@@ -17,6 +17,15 @@
                 <span class="badge badge-success badge-dot">
                     Activa
                 </span>
+                {% if asignacion.vencida %}
+                    <span class="badge badge-warning">
+                        Vencida: registrar salida
+                    </span>
+                {% elif asignacion.inicio_programado %}
+                    <span class="badge badge-info">
+                        Inicio programado
+                    </span>
+                {% endif %}
             {% else %}
                 <span class="badge badge-neutral badge-dot">
                     Finalizada
@@ -81,7 +90,7 @@
 
         <div>
             <small>
-                Asignación registrada el
+                Ingreso efectivo (registro en el sistema)
             </small>
 
             <strong>
@@ -100,7 +109,7 @@
     <div>
 
       <small>
-        Periodo de la estadía
+        Fechas contratadas
       </small>
 
       <strong>
@@ -125,11 +134,11 @@
 
         <div>
             <small>
-                Fecha y hora de salida
+                Salida real
             </small>
 
             <strong>
-                {{ asignacion.fecha_salida|date:'d/m/Y H:i'|default:'Estadía en curso' }}
+                {{ asignacion.fecha_salida|date:'d/m/Y H:i'|default:'Aún no registrada' }}
             </strong>
         </div>
     </article>
@@ -252,7 +261,7 @@
                                         {{ detalle.numero_snapshot }}
                                     </span>
                                     <div class="help-text">
-                                        {{ detalle.habitacion.get_vista_display }}
+                                        {{ detalle.vista_display }}
                                     </div>
                                 </td>
 
@@ -384,7 +393,7 @@
                         pasajero{{ asignacion.cantidad_pasajeros|pluralize }}
                         × {{ asignacion.noches }}
                         noche{{ asignacion.noches|pluralize }}
-                        × $40.000
+                        × {{ asignacion.tarifa_aplicada|clp }}
                     </dd>
 
                 </div>

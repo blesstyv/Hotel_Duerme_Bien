@@ -236,6 +236,15 @@
                                 <span class="badge badge-success badge-dot">
                                     Activa
                                 </span>
+                                {% if asignacion.vencida %}
+                                    <span class="badge badge-warning">
+                                        Vencida: registrar salida
+                                    </span>
+                                {% elif asignacion.inicio_programado %}
+                                    <span class="badge badge-info">
+                                        Inicio programado
+                                    </span>
+                                {% endif %}
 
                             {% else %}
 

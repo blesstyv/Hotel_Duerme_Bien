@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import F, Q
+from django.utils import timezone
 
 from .managers import UsuarioManager
 from .validators import (
@@ -325,6 +326,15 @@ class Pasajero(models.Model):
                 }
             )
 
+    def tiene_hospedaje_activo(self):
+        if not self.pk:
+            return False
+
+        return Hospedaje.objects.filter(
+            pasajero_id=self.pk,
+            activa=True,
+        ).exists()
+
     def save(
         self,
         *args,
@@ -339,6 +349,32 @@ class Pasajero(models.Model):
                 self.nombre_completo.split()
             )
         )
+
+        # Defensa de integridad válida desde cualquier ruta (formularios,
+        # servicios, consola): durante un hospedaje activo no se cambia
+        # la identidad del pasajero.
+        if self.pk and not self._state.adding:
+            previo = (
+                Pasajero.objects
+                .filter(pk=self.pk)
+                .values("rut", "nombre_completo")
+                .first()
+            )
+
+            if (
+                previo
+                and (
+                    previo["rut"] != self.rut
+                    or previo["nombre_completo"]
+                    != self.nombre_completo
+                )
+                and self.tiene_hospedaje_activo()
+            ):
+                raise ValidationError(
+                    "No puedes modificar el nombre ni el RUT de "
+                    "un pasajero con hospedaje activo. Registra "
+                    "primero la salida de su asignación."
+                )
 
         super().save(
             *args,
@@ -593,6 +629,14 @@ class Asignacion(
         )
     )
 
+    tarifa_aplicada = (
+        models.PositiveIntegerField(
+            "Tarifa por pasajero y noche",
+            default=TARIFA_PASAJERO_NOCHE,
+            editable=False,
+        )
+    )
+
     estado = models.CharField(
         max_length=12,
         choices=Estado.choices,
@@ -609,6 +653,7 @@ class Asignacion(
         "fecha_inicio",
         "fecha_termino",
         "costo_total",
+        "tarifa_aplicada",
     )
 
     class Meta:
@@ -680,6 +725,22 @@ class Asignacion(
         ).days
 
     @property
+    def inicio_programado(self):
+        """Activa, pero la fecha de inicio contratada aún no llega."""
+        return (
+            self.estado == self.Estado.ACTIVA
+            and self.fecha_inicio > timezone.localdate()
+        )
+
+    @property
+    def vencida(self):
+        """Activa, pero la fecha de término contratada ya pasó."""
+        return (
+            self.estado == self.Estado.ACTIVA
+            and self.fecha_termino < timezone.localdate()
+        )
+
+    @property
     def cantidad_pasajeros(self):
         return (
             Hospedaje.objects
@@ -718,6 +779,14 @@ class DetalleHabitacionAsignada(
         models.PositiveIntegerField()
     )
 
+    vista_snapshot = models.CharField(
+        "Vista al asignar",
+        max_length=10,
+        choices=Habitacion.Vista.choices,
+        default=Habitacion.Vista.CIUDAD,
+        editable=False,
+    )
+
     activa = models.BooleanField(
         default=True
     )
@@ -735,6 +804,7 @@ class DetalleHabitacionAsignada(
         "habitacion_id",
         "numero_snapshot",
         "capacidad_snapshot",
+        "vista_snapshot",
     )
 
     class Meta:
@@ -772,13 +842,17 @@ class DetalleHabitacionAsignada(
         )
 
     @property
+    def vista_display(self):
+        return self.get_vista_snapshot_display()
+
+    @property
     def costo(self):
         return (
             self.cantidad_pasajeros
             *
             self.asignacion.noches
             *
-            TARIFA_PASAJERO_NOCHE
+            self.asignacion.tarifa_aplicada
         )
 
 

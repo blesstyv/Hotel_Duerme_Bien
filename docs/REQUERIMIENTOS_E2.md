@@ -19,7 +19,7 @@ La tabla conserva el significado de los RF originales y resume su redacción par
 | RF-09 | Modificación de pasajeros | Corregir datos conservando su historial. |
 | RF-10 | Consulta de pasajeros | Buscar por documento, nombre o apellido. |
 | RF-11 | Asignación de habitación | Alojar pasajeros registrados en habitaciones vacantes. |
-| RF-12 | Validación de capacidad | Cada habitación debe quedar con exactamente tantos pasajeros como su capacidad; rechazar el grupo completo si una falla. |
+| RF-12 | Validación de capacidad | Cada habitación debe quedar con entre 1 pasajero y su capacidad máxima; rechazar el grupo completo si una falla (retroalimentación de la evaluación 2). |
 | RF-13 | Cálculo automático del costo | Multiplicar $40.000 CLP por el número de pasajeros; calcular en servidor. |
 | RF-14 | Registro de fecha y hora | Tomar automáticamente la fecha y hora del sistema al asignar. |
 | RF-15 | Actualización del estado | Al confirmar, todas las habitaciones incluidas pasan a Ocupada. |
@@ -28,7 +28,7 @@ La tabla conserva el significado de los RF originales y resume su redacción par
 | RF-18 | Historial por habitación | Consultar asignaciones, fechas, pasajeros y costos asociados a una habitación. |
 | RF-19 | Historial por pasajero | Consultar estadías anteriores de un pasajero. |
 | RF-20 | Cierre de sesión | Invalidar la sesión y finalizar el acceso. |
-| RF-21 | Asignación de múltiples habitaciones | Distribuir un grupo en varias habitaciones, cumpliendo capacidad exacta en cada una. |
+| RF-21 | Asignación de múltiples habitaciones | Distribuir un grupo en varias habitaciones, cumpliendo la capacidad máxima de cada una (mínimo 1 pasajero por habitación). |
 | RF-22 | Pasajero responsable | Identificar un responsable para la contratación y asociarlo a las habitaciones del grupo. |
 | RF-23 | Eliminación controlada de habitaciones | Impedir la eliminación con hospedaje o asignación activa. |
 | RF-24 | Conservación del historial de habitación | La baja de una habitación vacante conserva sus asignaciones y pasajeros históricos. |
@@ -53,7 +53,7 @@ La tabla conserva el significado de los RF originales y resume su redacción par
 | RN-13 | Toda función requiere autenticación previa. |
 | RN-14 | Habitación con pasajeros o asignación activa no eliminable. |
 | RN-15 | Baja de habitación vacante no elimina historial ni pasajeros relacionados. |
-| RN-16 | Grupo admite múltiples habitaciones con capacidad exacta individual. |
+| RN-16 | Grupo admite múltiples habitaciones; cada una admite de 1 pasajero hasta su capacidad máxima. |
 | RN-17 | Toda contratación identifica un responsable asociado al grupo. |
 
 El responsable se almacena en la asignación. Una misma persona puede ser responsable en una estadía y acompañante en otra. No existe un atributo permanente de “líder” en Pasajero. Para impedir inconsistencias adicionales, un pasajero no puede aparecer dos veces dentro de la misma contratación ni permanecer en dos asignaciones activas.

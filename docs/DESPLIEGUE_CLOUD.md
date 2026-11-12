@@ -56,7 +56,7 @@ El proceso WSGI usa las variables `HOST` y `PORT`. En PaaS, definir `HOST=0.0.0.
 1. Verificar que HTTP redirige a HTTPS y que el certificado cubre el dominio.
 2. Abrir login, autenticar ambos roles y comprobar sus rechazos por URL directa.
 3. Confirmar que CSS, iconos y JavaScript responden con `collectstatic` aplicado.
-4. Crear una asignación exacta, probar otra inválida y confirmar ausencia de cambios parciales.
+4. Crear una asignación válida, probar otra inválida y confirmar ausencia de cambios parciales.
 5. Registrar salida y comprobar conservación de historiales.
 6. Reiniciar la instancia y comprobar persistencia de datos.
 7. Crear un respaldo, restaurarlo en un entorno independiente y validar consultas.

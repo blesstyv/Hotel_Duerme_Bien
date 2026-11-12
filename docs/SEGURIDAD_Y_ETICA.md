@@ -7,7 +7,7 @@ La información del hotel incluye identificadores de pasajeros, contactos, crede
 | Principio | Aplicación verificable | Límite operativo |
 |---|---|---|
 | Confidencialidad | Autenticación y autorización del servidor por roles; datos de pasajeros para Encargado. | Requiere protección de equipos, respaldos y canal TLS en producción. |
-| Integridad | Unicidad, exactitud de capacidad, costo en servidor, transacciones y protección histórica. | El administrador del sistema operativo conserva acceso al archivo SQLite. |
+| Integridad | Unicidad, límite de capacidad, nombre y RUT intocables con hospedaje activo, vista y tarifa congeladas en la boleta, costo en servidor, transacciones y protección histórica. | El administrador del sistema operativo conserva acceso al archivo SQLite. |
 | Disponibilidad | Comando de respaldo y ejecución WSGI. | Una instancia local no acredita continuidad 24/7 ni recuperación ante desastre. |
 | Responsabilidad | Usuario y timestamp en asignación/salida; registro de eventos. | Revisión de eventos y respuesta a incidentes requieren responsables humanos. |
 | Transparencia | Métricas provenientes de datos, pruebas reproducibles y límites declarados. | No usar resultados locales como garantía universal. |

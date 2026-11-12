@@ -26,7 +26,7 @@ from .decorators import admin_required, encargado_required, usuario_required
 from .forms import AsignacionForm, EncargadoCreationForm, EncargadoEditForm, HabitacionForm, LoginForm, PasajeroForm
 from .models import Asignacion, DetalleHabitacionAsignada, Habitacion, Hospedaje, LoginIntento, Movimiento, Pasajero, Usuario
 from .models import MAX_NOCHES_ESTADIA
-from .services import TARIFA_PASAJERO, crear_asignacion, eliminar_habitacion, liberar_asignacion, registrar_movimiento, resumen_ocupacion, validar_asignacion
+from .services import TARIFA_PASAJERO, crear_asignacion, eliminar_habitacion, liberar_asignacion, reactivar_habitacion, registrar_movimiento, resumen_ocupacion, validar_asignacion
 
 logger = logging.getLogger(__name__)
 LOGIN_ERROR = "Usuario o contraseña incorrectos, o cuenta no disponible."
@@ -223,6 +223,7 @@ def habitacion_list(request):
     q, estado = _q(request), request.GET.get("estado", "")
     activa = request.GET.get("activa", "activas")
     orientacion = request.GET.get("orientacion", "")
+    vista = request.GET.get("vista", "")
     capacidad = request.GET.get("capacidad", "").strip()[:12]
     queryset = Habitacion.objects.all().order_by("numero")
     if activa in ("activas", "1", "true"):
@@ -235,6 +236,10 @@ def habitacion_list(request):
         queryset = queryset.filter(estado=estado)
     if orientacion in dict(Habitacion._meta.get_field("orientacion").choices):
         queryset = queryset.filter(orientacion=orientacion)
+    if vista in Habitacion.Vista.values:
+        queryset = queryset.filter(vista=vista)
+    elif vista:
+        vista = ""
     if capacidad:
         try:
             number = int(capacidad)
@@ -245,7 +250,7 @@ def habitacion_list(request):
             messages.error(request, "El filtro de capacidad debe ser un número entero positivo.")
             queryset = queryset.none()
     page = _page(request, queryset)
-    return render(request, "hotel/habitacion_list.html", {"habitaciones": page, "page_obj": page, "q": q, "estado": estado, "activa": activa, "orientacion": orientacion, "capacidad": capacidad, "estados": Habitacion.Estado.choices, "orientaciones": Habitacion._meta.get_field("orientacion").choices, "stats": resumen_ocupacion(), "title": "Habitaciones", "subtitle": "Capacidad, disponibilidad y orientación de cada habitación", "nav_active": "habitaciones"})
+    return render(request, "hotel/habitacion_list.html", {"habitaciones": page, "page_obj": page, "q": q, "estado": estado, "activa": activa, "orientacion": orientacion, "vista": vista, "vistas": Habitacion.Vista.choices, "capacidad": capacidad, "estados": Habitacion.Estado.choices, "orientaciones": Habitacion._meta.get_field("orientacion").choices, "stats": resumen_ocupacion(), "title": "Habitaciones", "subtitle": "Capacidad, disponibilidad y orientación de cada habitación", "nav_active": "habitaciones"})
 
 
 @encargado_required
@@ -300,6 +305,18 @@ def habitacion_eliminar(request, pk):
 
 
 @encargado_required
+@require_POST
+def habitacion_reactivar(request, pk):
+    get_object_or_404(Habitacion, pk=pk)
+    try:
+        room = reactivar_habitacion(pk, request.user)
+        messages.success(request, f"Habitación {room.numero} reactivada. Quedó vacante y con su historial intacto.")
+    except (ValidationError, IntegrityError, OperationalError) as error:
+        _add_operation_error(request, error)
+    return redirect(f"{reverse('hotel:habitacion_list')}?activa=inactivas")
+
+
+@encargado_required
 @require_GET
 def pasajero_list(request):
     q = _q(request)
@@ -347,6 +364,8 @@ def pasajero_editar(request, pk):
                     registrar_movimiento(request.user, "Edición de pasajero", f"Se actualizaron los datos de {passenger.nombre_completo}.")
                     messages.success(request, "Pasajero actualizado correctamente.")
                     return redirect("hotel:pasajero_list")
+        except ValidationError as error:
+            form.add_error(None, " ".join(_validation_messages(error)))
         except (IntegrityError, OperationalError):
             form.add_error(None, "No se pudo actualizar el pasajero. Verifique el RUT e intente nuevamente.")
     return _form_page(request, form, "Editar pasajero", "Los registros históricos mantienen los datos de la estadía original.", "pasajero_list", "pasajeros", objeto=passenger)

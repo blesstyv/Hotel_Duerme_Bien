@@ -144,10 +144,13 @@ class BoletaEstadiaTests(HotelTestCase):
         self.assertContains(response, "$240.000")  # habitación 103: 2 x 3 x 40.000
         self.assertEqual(self.asignacion.costo_total, 360000)
 
-    def test_boleta_muestra_vista_al_mar(self):
+    def test_boleta_conserva_la_vista_original_aunque_la_habitacion_cambie(self):
+        """La vista queda congelada al asignar: cambiar la habitación después no altera la boleta."""
         Habitacion.objects.filter(pk=self.room1.pk).update(vista="MAR")
         self.client.force_login(self.encargado)
-        self.assertContains(self.client.get(url("asignacion_boleta", self.asignacion.pk)), "Vista al mar")
+        boleta = self.client.get(url("asignacion_boleta", self.asignacion.pk))
+        self.assertNotContains(boleta, "Vista al mar")
+        self.assertContains(boleta, "Vista a la ciudad")
 
     def test_boleta_requiere_sesion(self):
         response = self.client.get(url("asignacion_boleta", self.asignacion.pk))

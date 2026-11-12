@@ -122,3 +122,12 @@ Guardar evidencia con fecha, comando, número de casos, salida final, fallos y c
 | CP-61 | Abrir la boleta de una asignación | Folio, representante, fechas, noches, pasajeros por habitación, vista, tarifa, subtotales y total correctos. |
 | CP-62 | Abrir la boleta sin sesión, como Administrador o con id inexistente | Redirección al login, acceso denegado y 404. |
 | CP-63 | Abrir el inicio de sesión y el panel | La imagen del hotel se muestra. |
+| CP-64 | Desactivar una habitación vacante y reactivarla desde Habitaciones → Inactivas | Pide confirmación; queda activa y vacante; se registra el movimiento; el historial no cambia. |
+| CP-65 | Desactivar una habitación ocupada | Rechazo con mensaje; sigue activa. |
+| CP-66 | Reactivar con GET, sin sesión, como Administrador o sin token CSRF | 405, redirección al login, acceso denegado y 403. |
+| CP-67 | Filtrar habitaciones por vista (y con valores manipulados) | Muestra solo la vista elegida; un valor inválido se ignora sin error. |
+| CP-68 | Editar un pasajero hospedado enviando otro nombre y RUT por POST | Nombre y RUT no cambian; teléfono y correo sí; tras la salida se pueden corregir. |
+| CP-69 | Cambiar la vista, el número o la tarifa de una habitación tras asignarla y abrir su boleta | La boleta conserva vista, número y tarifa originales. |
+| CP-70 | Asignación vencida o con inicio futuro | Etiquetas «Vencida: registrar salida» / «Inicio programado»; aviso en el panel. |
+| CP-71 | Formularios de habitación y asignación | No piden capacidad exacta; permiten de 1 a la capacidad; rechazan vacía o sobreocupada. |
+| CP-72 | Migrar 0004 → 0005 con asignaciones anteriores | Tarifa $40.000 y vista rellenadas; reversible. |

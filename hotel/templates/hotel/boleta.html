@@ -134,7 +134,7 @@
           <tr>
             <td>
               <strong>N° {{ detalle.numero_snapshot }}</strong><br>
-              <small>{{ detalle.habitacion.get_vista_display }}</small>
+              <small>{{ detalle.vista_display }}</small>
             </td>
             <td>
               <ul class="pasajeros">
@@ -145,7 +145,7 @@
             </td>
             <td class="num">{{ detalle.cantidad_pasajeros }}</td>
             <td class="num">{{ asignacion.noches }}</td>
-            <td class="num">{{ tarifa|clp }}</td>
+            <td class="num">{{ asignacion.tarifa_aplicada|clp }}</td>
             <td class="num">{{ detalle.costo|clp }}</td>
           </tr>
           {% endfor %}
@@ -155,14 +155,14 @@
       <div class="resumen">
         <div><span>Pasajeros</span><span>{{ asignacion.cantidad_pasajeros }}</span></div>
         <div><span>Noches</span><span>{{ asignacion.noches }}</span></div>
-        <div><span>Tarifa por persona y noche</span><span>{{ tarifa|clp }}</span></div>
+        <div><span>Tarifa por persona y noche</span><span>{{ asignacion.tarifa_aplicada|clp }}</span></div>
         <div class="total"><span>TOTAL</span><span>{{ asignacion.costo_total|clp }}</span></div>
       </div>
 
       <p class="nota">
         Cálculo: {{ asignacion.cantidad_pasajeros }} pasajero{{ asignacion.cantidad_pasajeros|pluralize }}
         × {{ asignacion.noches }} noche{{ asignacion.noches|pluralize }}
-        × {{ tarifa|clp }} = {{ asignacion.costo_total|clp }} (pesos chilenos).
+        × {{ asignacion.tarifa_aplicada|clp }} = {{ asignacion.costo_total|clp }} (pesos chilenos).
         Documento emitido por el sistema de gestión del hotel como comprobante interno de la estadía;
         no corresponde a un documento tributario electrónico.
       </p>

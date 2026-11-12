@@ -203,7 +203,7 @@ class AssignmentTests(HotelTestCase):
     def test_occupancy_summary_and_inactive_exclusion(self):
         self.create_single()
         eliminar_habitacion(self.room3.pk, self.encargado)
-        self.assertEqual(resumen_ocupacion(), {'total': 2, 'vacantes': 1, 'ocupadas': 1, 'pasajeros': 1, 'asignaciones': 1, 'porcentaje': 50.0})
+        self.assertEqual(resumen_ocupacion(), {'total': 2, 'vacantes': 1, 'ocupadas': 1, 'pasajeros': 1, 'asignaciones': 1, 'vencidas': 0, 'porcentaje': 50.0})
 
 class ValidationTests(HotelTestCase):
     def test_valid_room_starts_vacant(self):

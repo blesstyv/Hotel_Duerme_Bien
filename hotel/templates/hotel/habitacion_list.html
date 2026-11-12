@@ -102,6 +102,38 @@
 
       <label
         class="sr-only"
+        for="vista"
+      >
+        Vista
+      </label>
+
+      <select
+        name="vista"
+        id="vista"
+      >
+
+        <option value="">
+          Todas las vistas
+        </option>
+
+        {% for value, label in vistas %}
+
+          <option
+            value="{{ value }}"
+            {% if vista == value %}
+              selected
+            {% endif %}
+          >
+            {{ label }}
+          </option>
+
+        {% endfor %}
+
+      </select>
+
+
+      <label
+        class="sr-only"
         for="capacidad"
       >
         Capacidad
@@ -345,6 +377,25 @@
 
                 {% endif %}
 
+              
+                {% if not habitacion.activa %}
+                  <form
+                    method="post"
+                    action="{% url 'hotel:habitacion_reactivar' habitacion.pk %}"
+                    data-confirm="La habitación {{ habitacion.numero }} volverá a estar activa y vacante, y podrá usarse en nuevas asignaciones. Su historial no cambia."
+                    data-confirm-title="Reactivar habitación {{ habitacion.numero }}"
+                  >
+                    {% csrf_token %}
+                    <button
+                      class="btn btn-small btn-secondary"
+                      type="submit"
+                      title="Reactivar habitación"
+                      aria-label="Reactivar habitación {{ habitacion.numero }}"
+                    >
+                      Reactivar
+                    </button>
+                  </form>
+                {% endif %}
               </div>
 
             </td>

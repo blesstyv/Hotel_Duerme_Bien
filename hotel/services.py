@@ -101,14 +101,16 @@ def crear_asignacion(distribucion, responsable_id, user, fecha_inicio, fecha_ter
             responsible = summary['responsable']
             assignment = Asignacion.objects.create(responsable=responsible, responsable_nombre=responsible.nombre_completo,
                             responsable_rut=responsible.rut, registrada_por=user, fecha_inicio=summary['fecha_inicio'],
-                            fecha_termino=summary['fecha_termino'], costo_total=summary['costo_total'])
+                            fecha_termino=summary['fecha_termino'], costo_total=summary['costo_total'],
+                            tarifa_aplicada=summary['tarifa'])
             for row in summary['habitaciones']:
                 room = row['habitacion']
                 changed = Habitacion.objects.filter(pk=room.pk, activa=True, estado=Habitacion.Estado.VACANTE).update(estado=Habitacion.Estado.OCUPADA)
                 if changed != 1:
                     raise ValidationError('La disponibilidad cambió. Vuelve a revisar la asignación.')
                 detail = DetalleHabitacionAsignada.objects.create(asignacion=assignment, habitacion=room,
-                                                numero_snapshot=room.numero, capacidad_snapshot=room.capacidad)
+                                                numero_snapshot=room.numero, capacidad_snapshot=room.capacidad,
+                                                vista_snapshot=room.vista)
                 for passenger in row['pasajeros']:
                     Hospedaje.objects.create(detalle=detail, pasajero=passenger, nombre_snapshot=passenger.nombre_completo, rut_snapshot=passenger.rut)
             registrar_movimiento(user, 'ASIGNACION', f'Asignación #{assignment.pk:04d}: {summary["cantidad"]} pasajeros, {len(summary["habitaciones"])} habitaciones, {summary["noches"]} noches.')
@@ -156,6 +158,24 @@ def eliminar_habitacion(habitacion_id, user):
     registrar_movimiento(user, 'HABITACION_ELIMINADA', f'Habitación {room.numero} desactivada; se conserva su historial.')
     return room
 
+@transaction.atomic
+def reactivar_habitacion(habitacion_id, user):
+    """Revierte la desactivación lógica. La habitación vuelve vacante y su historial no cambia."""
+    exigir_encargado(user)
+    try:
+        room = Habitacion.objects.select_for_update().get(pk=_id(habitacion_id))
+    except Habitacion.DoesNotExist:
+        raise ValidationError('La habitación no existe.')
+    if room.activa:
+        raise ValidationError('La habitación ya se encuentra activa.')
+    if room.detalles.filter(activa=True).exists() or Hospedaje.objects.filter(detalle__habitacion=room, activa=True).exists():
+        raise ValidationError('La habitación tiene una asignación activa y no puede reactivarse.')
+    room.activa = True
+    room.estado = Habitacion.Estado.VACANTE
+    room.save(update_fields=['activa', 'estado'])
+    registrar_movimiento(user, 'HABITACION_REACTIVADA', f'Habitación {room.numero} reactivada como vacante; su historial se conserva.')
+    return room
+
 def resumen_ocupacion():
     rooms = Habitacion.objects.filter(activa=True)
     total = rooms.count()
@@ -163,4 +183,5 @@ def resumen_ocupacion():
     return {'total': total, 'vacantes': total - occupied, 'ocupadas': occupied,
             'pasajeros': Hospedaje.objects.filter(activa=True).count(),
             'asignaciones': Asignacion.objects.filter(estado=Asignacion.Estado.ACTIVA).count(),
+            'vencidas': Asignacion.objects.filter(estado=Asignacion.Estado.ACTIVA, fecha_termino__lt=timezone.localdate()).count(),
             'porcentaje': round(occupied * 100 / total, 1) if total else 0}

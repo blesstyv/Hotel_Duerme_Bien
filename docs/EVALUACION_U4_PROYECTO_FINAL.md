@@ -17,7 +17,7 @@ Aprendizaje esperado 3.1.5: corregir el código del prototipo a partir de los re
 | Fechas de la estadía | Inicio y término obligatorios, término posterior al inicio, inicio no anterior a hoy, máximo 365 noches | `validar_estadia`, `AsignacionForm`, `CheckConstraint` | `EstadiaYCostoTests`, `FormatoFechaEstadiaTests` |
 | Boleta de estadía | Documento imprimible con folio, representante, fechas, noches, pasajeros por habitación, vista, tarifa, subtotales y total | `views.asignacion_boleta`, `boleta.html`, `boleta.js` | `BoletaEstadiaTests` |
 | Reglas del negocio | Ver la tabla siguiente | — | Suite completa |
-| Pruebas, corrección y seguridad | 198 pruebas automatizadas, controles de seguridad y mapeo ISO | `hotel/tests/` | Ejecución registrada abajo |
+| Pruebas, corrección y seguridad | 260 pruebas automatizadas, controles de seguridad y mapeo ISO | `hotel/tests/` | Ejecución registrada abajo |
 
 ## Reglas del negocio verificadas
 
@@ -85,9 +85,46 @@ Observación honesta sobre las estadías superpuestas: por la interfaz, el formu
 ## Decisiones abiertas
 
 - Regla 4.6 del caso (varias habitaciones solo si el grupo supera la habitación más grande disponible): el sistema permite usar varias habitaciones siempre. No se endureció para no bloquear asignaciones legítimas; queda como decisión del equipo.
-- La vista que se imprime en la boleta se lee de la habitación actual; congelarla por asignación requeriría una migración.
+- Fechas futuras: una asignación con inicio futuro marca la habitación como ocupada desde que se registra (ver «Fechas y ocupación» más abajo). Se necesita una decisión de negocio; el sistema ya la señala como «Inicio programado».
 
 
 ## Imagen real del hotel
 
 La fotografía fue entregada por el equipo del proyecto (`hotel_foto.jpg`, 1600×1065 px, vista nocturna con la piscina). Se muestra sola, sin recuadros encima, en el inicio de sesión y en el panel de cada rol. Para cambiarla basta copiar otra imagen con el mismo nombre en `hotel/static/hotel/img/`. Se asume que el equipo tiene derecho a usarla en el trabajo académico; si se publica fuera de él conviene confirmar su licencia.
+
+
+## Correcciones finales (rama `dev/correcciones-finales-u4`)
+
+Resultados de esta etapa (2026-11-11/12), sin merge a `main` ni despliegue:
+
+- `manage.py test`: **260 pruebas, 0 fallos** (200 anteriores + 60 nuevas en `test_correcciones_finales_u4.py`; se actualizaron 2 pruebas antiguas que describían el comportamiento anterior: la vista de la boleta ya no cambia al editar la habitación, y el resumen de ocupación incluye `vencidas`).
+- `manage.py check`: sin problemas. `makemigrations --check`: sin cambios pendientes. Nueva migración `0005_congelar_vista_y_tarifa`.
+- Migración verificada sobre una copia de una base con datos (5 asignaciones, 6 habitaciones asignadas): todas quedan con tarifa $40.000 y con la vista que tenía su habitación; se probó avanzar, retroceder a 0004 y avanzar de nuevo. Además hay una prueba automática que migra 0004 → 0005 con datos antiguos.
+
+### Qué se encontró y qué se hizo
+
+| Prioridad | Hallazgo en el código | Corrección |
+|---|---|---|
+| Alta | No existía la reactivación de habitaciones | `reactivar_habitacion` (servicio con bloqueo de fila), vista POST protegida con CSRF y rol, botón «Reactivar» con confirmación en las inactivas, mensaje y registro en movimientos |
+| Alta | `pasajero_editar` permitía cambiar nombre y RUT de un pasajero con hospedaje activo (solo la ruta de «pasajeros asignados» lo impedía) | El formulario deshabilita ambos campos (un POST manipulado no los cambia), y `Pasajero.save` rechaza el cambio desde cualquier ruta; teléfono y correo siguen editables |
+| Alta | La vista de la habitación y la tarifa de la boleta se leían de datos actuales: una boleta antigua cambiaba al editar la habitación | Se guardan al asignar (`vista_snapshot`, `tarifa_aplicada`), son inmutables, y la boleta, el detalle, el historial y la ocupación leen lo guardado |
+| Media | El formulario de habitaciones decía «capacidad exacta… debe alojarse exactamente esa cantidad» | Ahora indica capacidad máxima y que se alojan de 1 pasajero hasta ese máximo |
+| Media | El listado de habitaciones no filtraba por vista | Filtro «Todas las vistas / Vista al mar / Vista a la ciudad», validado en el servidor |
+| Media | Una estadía vencida o con inicio futuro no se distinguía | Etiquetas «Vencida: registrar salida» e «Inicio programado» en listado y detalle, aviso en el panel, y el detalle separa «Fechas contratadas», «Ingreso efectivo» y «Salida real» |
+
+Ya estaban resueltos y no se tocaron: desactivación que impide habitaciones ocupadas, historiales protegidos, representante obligatorio y del grupo, rechazo de habitaciones vacías o sobreocupadas, duplicidades entre habitaciones, estadías superpuestas de una misma persona y la tarifa de $40.000 por persona y noche.
+
+### Fechas y ocupación: propuesta pendiente de aprobación
+
+Hoy una habitación pasa a «Ocupada» cuando se registra la asignación, aunque la fecha de inicio sea futura. No se cambió el modelo de negocio. Opciones:
+
+1. **Recomendada, la más simple:** el inicio debe ser hoy (no futuro). El ingreso efectivo coincide con el registro y desaparece la inconsistencia, sin módulo de reservas.
+2. Mantener fechas futuras tal como está y solo señalarlas (lo que hace ahora el sistema con «Inicio programado»).
+3. Reservas con estados propios («reservada» frente a «ocupada»): excede el alcance y requiere un módulo nuevo.
+
+La estadía vencida sin salida registrada no se cierra sola: se señala y la salida real la registra una persona.
+
+### Límites declarados
+
+- Para las asignaciones anteriores a la migración, la vista guardada es la que tenía la habitación al migrar (es el único dato disponible).
+- Las pruebas se ejecutaron en entorno local con SQLite; no se probó contra la base de Render.

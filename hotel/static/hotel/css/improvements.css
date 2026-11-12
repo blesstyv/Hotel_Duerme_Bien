@@ -330,3 +330,8 @@
     .login-story img.login-hotel-image[src$=".jpg"] { aspect-ratio: 2 / 1; }
     .login-form-area { padding-top: 28px; padding-bottom: 28px; }
 }
+
+
+/* Estados de fechas de una estadía */
+.badge-info { background: #e8f0fe; color: #2f5fb3; }
+.badge-warning + .badge-info, .badge-success + .badge-warning, .badge-success + .badge-info { margin-left: 6px; }

@@ -550,7 +550,7 @@ class HabitacionForm(
             "numero":
                 "Número de habitación",
             "capacidad":
-                "Capacidad exacta "
+                "Capacidad máxima "
                 "de pasajeros",
             "orientacion":
                 "Orientación",
@@ -560,9 +560,9 @@ class HabitacionForm(
 
         help_texts = {
             "capacidad":
-                "Al asignar, debe "
-                "alojarse exactamente "
-                "esta cantidad de pasajeros.",
+                "Máximo de pasajeros que admite. "
+                "Al asignar se pueden alojar "
+                "desde 1 pasajero hasta esta cantidad.",
             "vista":
                 "Seleccione la vista "
                 "principal de la habitación.",
@@ -775,7 +775,38 @@ class PasajeroForm(
             }
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.identidad_bloqueada = (
+            bool(self.instance.pk)
+            and self.instance.tiene_hospedaje_activo()
+        )
+
+        if self.identidad_bloqueada:
+            # Los campos deshabilitados ignoran cualquier valor enviado en
+            # el POST y conservan siempre el dato guardado.
+            for nombre in ("rut", "nombre_completo"):
+                self.fields[nombre].disabled = True
+                self.fields[nombre].help_text = (
+                    "No se puede modificar mientras el pasajero "
+                    "tenga un hospedaje activo."
+                )
+
+    def _get_validation_exclusions(self):
+        exclude = super()._get_validation_exclusions()
+
+        # Datos intocables durante el hospedaje: no se revalidan, para no
+        # impedir actualizar teléfono o correo de registros anteriores.
+        if self.identidad_bloqueada:
+            exclude.update({"rut", "nombre_completo"})
+
+        return exclude
+
     def clean_rut(self):
+        if self.identidad_bloqueada:
+            return self.instance.rut
+
         rut = normalizar_rut(
             self.cleaned_data[
                 "rut"
@@ -800,6 +831,9 @@ class PasajeroForm(
         return rut
 
     def clean_nombre_completo(self):
+        if self.identidad_bloqueada:
+            return self.instance.nombre_completo
+
         nombre = " ".join(
             self.cleaned_data[
                 "nombre_completo"

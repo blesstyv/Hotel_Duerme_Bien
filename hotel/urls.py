@@ -93,6 +93,12 @@ urlpatterns = [
     ),
 
     path(
+        "habitaciones/<int:pk>/reactivar/",
+        views.habitacion_reactivar,
+        name="habitacion_reactivar",
+    ),
+
+    path(
         "habitaciones/<int:pk>/historial/",
         views.habitacion_historial,
         name="habitacion_historial",
