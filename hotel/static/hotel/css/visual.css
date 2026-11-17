@@ -285,32 +285,30 @@ td > a:not(.btn):not(.icon-button) { display: inline-block; padding: 6px 4px; ma
    ========================================================= */
 @media (min-width: 761px) {
     .login-header { display: none; }
-    .login-body { background: #f6f8fc; }
-    .login-main { min-height: 100vh; max-width: none; grid-template-columns: minmax(0, 1.45fr) minmax(430px, 1fr); }
-    .login-story { padding: 0; align-items: flex-end; background: #14213d; }
-    .login-story:before { display: none; }
-    .login-story:after { display: none; }
-    .login-story-inner:after {
-        content: ""; position: absolute; inset: 0; z-index: -1;
-        background: linear-gradient(180deg, rgba(14, 22, 44, .55) 0%, rgba(14, 22, 44, .08) 36%, rgba(14, 22, 44, .78) 100%);
-    }
+    .login-body { background: #14213d; }
+    .login-main { position: relative; display: block; min-height: 100vh; max-width: none; margin: 0; }
+    .login-story { position: absolute; inset: 0; padding: 0; background: #14213d; display: block; }
+    .login-story:before, .login-story:after { display: none; }
     .login-story img.login-hotel-image {
         position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; margin: 0;
-        object-fit: cover; object-position: 38% center; aspect-ratio: auto; border-radius: 0; box-shadow: none;
+        object-fit: cover; object-position: center 55%; aspect-ratio: auto; border-radius: 0; box-shadow: none;
     }
-    .login-story-inner { position: absolute; inset: 0; max-width: none; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; padding: 44px 52px; }
-    .login-lockup { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; color: #fff; }
-    .login-story img.login-logo { position: static; width: 78px; height: 78px; margin: 0; border-radius: 20px; box-shadow: 0 10px 28px rgba(0, 0, 0, .35); aspect-ratio: auto; }
-    .login-lockup strong { font-size: 38px; letter-spacing: -.8px; line-height: 1.05; display: block; text-shadow: 0 2px 14px rgba(0, 0, 0, .45); }
+    .login-story-inner { position: absolute; inset: 0; max-width: none; z-index: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 40px 52px; }
+    .login-story-inner:after {
+        content: ""; position: absolute; inset: 0; z-index: -1;
+        background: linear-gradient(105deg, rgba(14, 22, 44, .80) 0%, rgba(14, 22, 44, .50) 50%, rgba(14, 22, 44, .62) 100%);
+    }
+    .login-lockup { display: flex; align-items: center; gap: 18px; color: #fff; }
+    .login-story img.login-logo { position: static; width: 74px; height: 74px; margin: 0; border-radius: 19px; box-shadow: 0 10px 28px rgba(0, 0, 0, .4); aspect-ratio: auto; }
+    .login-lockup strong { font-size: 36px; letter-spacing: -.8px; line-height: 1.05; display: block; text-shadow: 0 2px 14px rgba(0, 0, 0, .45); }
     .login-lockup span { display: block; margin-top: 6px; font-size: 15px; color: #e6ebf5; text-shadow: 0 1px 8px rgba(0, 0, 0, .4); }
     .login-trust { color: #dfe5f1; font-size: 12px; margin: 0; }
-    .login-form-area { background: #f6f8fc; }
-    .login-card { max-width: 420px; padding: 42px; box-shadow: 0 18px 50px rgba(29, 41, 65, .12); }
+    .login-form-area { position: relative; z-index: 2; min-height: 100vh; background: transparent; padding: 80px 24px; display: flex; align-items: center; justify-content: center; }
+    .login-card { max-width: 430px; padding: 42px; background: rgba(255, 255, 255, .97); border: 1px solid rgba(255, 255, 255, .6); box-shadow: 0 30px 70px rgba(5, 10, 25, .45); }
 }
 @media (max-width: 1000px) and (min-width: 761px) {
-    .login-main { grid-template-columns: minmax(0, 1fr) minmax(400px, 1fr); }
     .login-lockup strong { font-size: 30px; }
-    .login-story-inner { padding: 32px 30px; }
+    .login-story-inner { padding: 30px 30px; }
 }
 .login-card-logo { display: block; width: 54px; height: 54px; border-radius: 14px; margin-bottom: 22px; box-shadow: 0 6px 16px rgba(204, 18, 52, .25); }
 .login-header-logo { width: 40px; height: 40px; border-radius: 10px; margin-right: 12px; flex: none; }
