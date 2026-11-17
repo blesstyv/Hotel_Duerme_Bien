@@ -76,6 +76,8 @@ La descripción de las relaciones, adaptación del UML y control transaccional e
 
 **Encargado de Hotel:** panel de operación; habitaciones con filtros, edición y baja lógica; pasajeros con RUT único y contacto opcional; asignación de grupos a una o varias habitaciones; distribución individual; responsable; costo y fechas automáticas; detalle y salida del grupo; ocupación actual e historiales por habitación y pasajero. No puede administrar cuentas.
 
+**Ingreso efectivo:** el sistema registra ingresos reales, no reservas. La fecha de inicio de una asignación nueva debe ser la de hoy (se rechazan fechas anteriores y posteriores, en el formulario y en el servicio); la fecha de término es elegible, posterior al inicio y de máximo 365 noches. Las estadías con fecha de término vencida se señalan en el panel, el listado y el detalle, pero la habitación no se libera sola: el Encargado confirma la salida.
+
 La baja lógica de una habitación vacante mantiene su historial y la excluye de nuevas asignaciones. La salida finaliza la contratación completa y libera todas sus habitaciones. El nombre y los datos de identificación históricos se preservan aunque se corrija después el registro actual de una persona.
 
 ## Variables de entorno

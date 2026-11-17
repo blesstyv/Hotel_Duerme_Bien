@@ -67,7 +67,7 @@ La asociación definitiva a métodos automatizados se encuentra en `TRACEABILITY
 | CP-47 | Cerrar sesión por POST | Invalidar sesión; siguiente ruta protegida exige login. | RF-20 |
 | CP-48 | Habitación con letras o símbolos en el número (`10A`, `A10`, `10-1`) | Rechazo con mensaje claro; no se crea ni se edita la habitación. | RF-05 (cambio U2) |
 | CP-49 | Asignar sin fecha de inicio o sin fecha de término | Rechazo: ambas fechas son obligatorias; no se crea la asignación. | RF-13 (cambio U2) |
-| CP-50 | Fecha de término igual o anterior al inicio, inicio anterior a hoy o estadía de más de 365 noches | Rechazo con mensaje específico en el campo de fecha. | RF-13 (cambio U2) |
+| CP-50 | Fecha de término igual o anterior al inicio, inicio distinto de hoy (anterior o posterior) o estadía de más de 365 noches | Rechazo con mensaje específico en el campo de fecha. | RF-13 (cambio U2) |
 | CP-51 | Una persona durante 1, 2 y 3 noches | Costo de $40.000, $80.000 y $120.000 respectivamente. | RF-13 (cambio U2) |
 | CP-52 | Grupo de 4 personas durante 2 noches en varias habitaciones | Costo de 4 × 2 × $40.000 = $320.000; el costo por habitación suma el total. | RF-13, RF-21 |
 | CP-53 | Cambiar las fechas después de la vista previa | La confirmación se rechaza hasta revisar el resumen actualizado. | RF-13, RNF-08 |
@@ -128,6 +128,22 @@ Guardar evidencia con fecha, comando, número de casos, salida final, fallos y c
 | CP-67 | Filtrar habitaciones por vista (y con valores manipulados) | Muestra solo la vista elegida; un valor inválido se ignora sin error. |
 | CP-68 | Editar un pasajero hospedado enviando otro nombre y RUT por POST | Nombre y RUT no cambian; teléfono y correo sí; tras la salida se pueden corregir. |
 | CP-69 | Cambiar la vista, el número o la tarifa de una habitación tras asignarla y abrir su boleta | La boleta conserva vista, número y tarifa originales. |
-| CP-70 | Asignación vencida o con inicio futuro | Etiquetas «Vencida: registrar salida» / «Inicio programado»; aviso en el panel. |
+| CP-70 | Asignación vencida o (datos antiguos) con inicio futuro | Etiquetas «Vencida: registrar salida» / «Inicio programado»; aviso en el panel. Las asignaciones nuevas ya no pueden tener inicio futuro (CP-75). |
 | CP-71 | Formularios de habitación y asignación | No piden capacidad exacta; permiten de 1 a la capacidad; rechazan vacía o sobreocupada. |
 | CP-72 | Migrar 0004 → 0005 con asignaciones anteriores | Tarifa $40.000 y vista rellenadas; reversible. |
+
+## Ingreso efectivo y estadías vencidas (2026-11-17)
+
+Automatizadas en `hotel/tests/test_estadias_hoy_u4.py` (20 pruebas, ejecutadas: suite completa 280 OK). Las pruebas manuales de interfaz y del sitio publicado las realiza el equipo; no se registran como ejecutadas aquí.
+
+| ID | Caso | Resultado esperado |
+|---|---|---|
+| CP-73 | Inicio igual a hoy (servicio, formulario con `dd/mm/aaaa` e ISO) | Se acepta; costo pasajeros × noches × $40.000. |
+| CP-74 | Inicio anterior a hoy | Rechazo «no puede ser anterior a hoy» con la fecha de hoy; sin asignación ni cambio de habitación. |
+| CP-75 | Inicio posterior a hoy (1, 2, 30 y 365 días) | Rechazo «no puede ser posterior a hoy… reservas anticipadas»; la habitación sigue vacante y no se registra movimiento. |
+| CP-76 | Fecha de término igual o anterior al inicio, vacía, y más de 365 noches | Rechazo con mensaje; 365 noches se acepta. |
+| CP-77 | Confirmación manipulada: fechas cambiadas tras la vista previa, o sin vista previa | Rechazo; no se crea la asignación. |
+| CP-78 | Formulario de asignación | Explica que el ingreso es hoy y que no hay reservas anticipadas; el mensaje de error aparece arriba y en el campo. |
+| CP-79 | Asignación antigua con inicio futuro | Se conserva sin cambios y sigue marcada «Inicio programado». |
+| CP-80 | Estadía vencida | Se detecta; el aviso aparece en panel, listado y detalle; la habitación sigue ocupada tras consultar las pantallas; no puede asignarse a otro grupo. |
+| CP-81 | Registrar la salida de una estadía vencida | Habitación vacante, indicadores actualizados, aviso desaparece, historial, boleta y movimientos intactos; no se puede registrar dos veces. |

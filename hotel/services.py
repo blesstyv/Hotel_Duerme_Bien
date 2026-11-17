@@ -28,8 +28,11 @@ def validar_estadia(fecha_inicio, fecha_termino):
     """Valida el periodo de la estadía y devuelve la cantidad de noches."""
     if type(fecha_inicio) is not date or type(fecha_termino) is not date:
         raise ValidationError('Indica la fecha de inicio y la fecha de término de la estadía.')
-    if fecha_inicio < timezone.localdate():
-        raise ValidationError('La fecha de inicio de la estadía no puede ser anterior a hoy.')
+    hoy = timezone.localdate()
+    if fecha_inicio < hoy:
+        raise ValidationError(f'La fecha de inicio no puede ser anterior a hoy. Una nueva asignación debe comenzar hoy ({hoy:%d/%m/%Y}).')
+    if fecha_inicio > hoy:
+        raise ValidationError(f'La fecha de inicio no puede ser posterior a hoy. El sistema registra ingresos efectivos, no reservas anticipadas: la asignación debe comenzar hoy ({hoy:%d/%m/%Y}).')
     if fecha_termino <= fecha_inicio:
         raise ValidationError('La fecha de término debe ser posterior a la fecha de inicio (mínimo una noche).')
     noches = (fecha_termino - fecha_inicio).days
