@@ -254,3 +254,27 @@ img { max-width: 100%; }
     }
     .btn:hover, .metric-card:hover, .quick-link:hover, .room-option:hover, .icon-button:hover { transform: none; }
 }
+
+
+/* =========================================================
+   Correcciones de la auditoría responsive
+   ========================================================= */
+
+/* La ilustración del banner no debe generar desplazamiento horizontal */
+.page-hero { position: relative; overflow: hidden; }
+.hotel-banner { overflow: hidden; }
+main { min-width: 0; }
+
+/* Áreas táctiles mínimas */
+.icon-button { min-width: 34px; min-height: 34px; }
+.menu-toggle,
+button[aria-label="Abrir navegación"],
+button[aria-label="Cerrar navegación"] { min-width: 42px; min-height: 42px; }
+td > a:not(.btn):not(.icon-button) { display: inline-block; padding: 6px 4px; margin: -6px -4px; }
+.text-link { display: inline-flex; align-items: center; min-height: 32px; }
+@media (max-width: 760px) {
+    .icon-button { min-width: 40px; min-height: 40px; }
+}
+
+/* El texto solo-lectores dentro de tablas desplazables no debe ampliar la página */
+.table-scroll { position: relative; }
