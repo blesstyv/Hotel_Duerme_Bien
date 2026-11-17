@@ -310,8 +310,14 @@ class EstadosDeFechaTests(HotelTestCase):
     def crear(self, desde, noches=2, persona=0, room=None):
         room = room or self.room1
         p = self.people[persona]
-        inicio = timezone.localdate() + timedelta(days=desde)
-        a = services.crear_asignacion({room.pk: [p.pk]}, p.pk, self.encargado, inicio, inicio + timedelta(days=noches))
+        # Las asignaciones nuevas siempre comienzan hoy; un inicio futuro solo existe
+        # en datos históricos, que se simulan desplazando las fechas después de crearla.
+        hoy = timezone.localdate()
+        a = services.crear_asignacion({room.pk: [p.pk]}, p.pk, self.encargado, hoy, hoy + timedelta(days=noches))
+        if desde:
+            inicio = hoy + timedelta(days=desde)
+            forzar(Asignacion, a.pk, fecha_inicio=inicio, fecha_termino=inicio + timedelta(days=noches))
+            a.refresh_from_db()
         return a
 
     def test_estadia_que_empieza_hoy_no_es_programada_ni_vencida(self):

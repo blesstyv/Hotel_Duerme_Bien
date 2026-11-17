@@ -14,10 +14,10 @@ Aprendizaje esperado 3.1.5: corregir el código del prototipo a partir de los re
 | Cálculo del valor | Pasajeros × noches × $40.000, calculado en el servidor | `services.calcular_costo`, `DetalleHabitacionAsignada.costo` | `EstadiaYCostoTests` |
 | Vistas de habitaciones | Cada habitación tiene vista al mar o a la ciudad; se elige al crear/editar, se filtra al asignar y aparece en la boleta | `Habitacion.vista`, formularios y plantillas | `test_vista_habitacion.py`, `BoletaEstadiaTests` |
 | Interfaz de inicio | Fotografía real del hotel en el inicio de sesión y en el panel de cada rol (la ilustración `hotel_fachada.svg` queda solo como respaldo si falta la foto) | `img/hotel_foto.jpg`, `hotel_image` (hotel_tags), `login.html`, dashboards, `improvements.css` | `ImagenDelHotelTests` |
-| Fechas de la estadía | Inicio y término obligatorios, término posterior al inicio, inicio no anterior a hoy, máximo 365 noches | `validar_estadia`, `AsignacionForm`, `CheckConstraint` | `EstadiaYCostoTests`, `FormatoFechaEstadiaTests` |
+| Fechas de la estadía | Inicio y término obligatorios, término posterior al inicio, inicio igual a hoy (ingreso efectivo, sin reservas anticipadas), máximo 365 noches | `validar_estadia`, `AsignacionForm`, `CheckConstraint` | `EstadiaYCostoTests`, `FormatoFechaEstadiaTests` |
 | Boleta de estadía | Documento imprimible con folio, representante, fechas, noches, pasajeros por habitación, vista, tarifa, subtotales y total | `views.asignacion_boleta`, `boleta.html`, `boleta.js` | `BoletaEstadiaTests` |
 | Reglas del negocio | Ver la tabla siguiente | — | Suite completa |
-| Pruebas, corrección y seguridad | 260 pruebas automatizadas, controles de seguridad y mapeo ISO | `hotel/tests/` | Ejecución registrada abajo |
+| Pruebas, corrección y seguridad | 280 pruebas automatizadas, controles de seguridad y mapeo ISO | `hotel/tests/` | Ejecución registrada abajo |
 
 ## Reglas del negocio verificadas
 
@@ -85,7 +85,7 @@ Observación honesta sobre las estadías superpuestas: por la interfaz, el formu
 ## Decisiones abiertas
 
 - Regla 4.6 del caso (varias habitaciones solo si el grupo supera la habitación más grande disponible): el sistema permite usar varias habitaciones siempre. No se endureció para no bloquear asignaciones legítimas; queda como decisión del equipo.
-- Fechas futuras: una asignación con inicio futuro marca la habitación como ocupada desde que se registra (ver «Fechas y ocupación» más abajo). Se necesita una decisión de negocio; el sistema ya la señala como «Inicio programado».
+- Fechas futuras: **resuelta** en la rama `feat/estadias-hoy-y-vencidas`: toda asignación nueva debe comenzar hoy (ver «Ingreso efectivo y estadías vencidas» al final). «Inicio programado» solo aparece en datos antiguos.
 
 
 ## Imagen real del hotel
@@ -114,9 +114,9 @@ Resultados de esta etapa (2026-11-11/12), sin merge a `main` ni despliegue:
 
 Ya estaban resueltos y no se tocaron: desactivación que impide habitaciones ocupadas, historiales protegidos, representante obligatorio y del grupo, rechazo de habitaciones vacías o sobreocupadas, duplicidades entre habitaciones, estadías superpuestas de una misma persona y la tarifa de $40.000 por persona y noche.
 
-### Fechas y ocupación: propuesta pendiente de aprobación
+### Fechas y ocupación: propuesta (implementada después: opción 1)
 
-Hoy una habitación pasa a «Ocupada» cuando se registra la asignación, aunque la fecha de inicio sea futura. No se cambió el modelo de negocio. Opciones:
+Antes de la corrección posterior una habitación pasaba a «Ocupada» cuando se registra la asignación, aunque la fecha de inicio sea futura. No se cambió el modelo de negocio. Opciones:
 
 1. **Recomendada, la más simple:** el inicio debe ser hoy (no futuro). El ingreso efectivo coincide con el registro y desaparece la inconsistencia, sin módulo de reservas.
 2. Mantener fechas futuras tal como está y solo señalarlas (lo que hace ahora el sistema con «Inicio programado»).
@@ -129,3 +129,23 @@ La estadía vencida sin salida registrada no se cierra sola: se señala y la sal
 - Para las asignaciones anteriores a la migración, la vista guardada es la que tenía la habitación al migrar (es el único dato disponible).
 - Simulación de producción (modo producción, HTTPS local, `collectstatic`, `migrate` y `seed_demo` sobre una copia de una base antigua con datos): 46 de 46 comprobaciones previas y 11 de 11 nuevas aprobadas con Chrome (desactivar y reactivar con sus confirmaciones, filtro por vista, edición manipulada de un pasajero hospedado, boleta antigua migrada).
 - Las pruebas se ejecutaron en entorno local con SQLite; no se probó contra la base de Render ni con el sitio público.
+
+## Ingreso efectivo (inicio = hoy) y estadías vencidas
+
+Etapa de la rama `feat/estadias-hoy-y-vencidas` (2026-11-17), pendiente de revisión y autorización de publicación.
+
+**1. Por qué las asignaciones nuevas solo permiten ingresar el día actual.** Hotel Duerme Bien es un gestor de ingresos efectivos, no una plataforma de reservas anticipadas. Una asignación registra a un grupo que llega y ocupa la habitación en ese momento; por eso la fecha de inicio debe ser la de hoy. La fecha de término sigue siendo elegible, siempre posterior al inicio (mínimo una noche) y con un máximo de 365 noches. El cálculo se mantiene: pasajeros × noches × $40.000.
+
+**2. Cómo se evita la ocupación anticipada.** La regla se valida en tres niveles: el formulario (`AsignacionForm.clean`), el servicio (`services.validar_estadia`, usado por la vista previa y por la confirmación) y la interfaz (texto de ayuda del formulario). Un inicio anterior a hoy se rechaza con «no puede ser anterior a hoy» y uno posterior con «no puede ser posterior a hoy… no reservas anticipadas», ambos indicando la fecha de hoy. Una solicitud manipulada (confirmar con fechas alteradas, enviar la confirmación sin vista previa o llamar al servicio directamente) también se rechaza, y no se crea la asignación ni cambia el estado de la habitación. Si el formulario se abre un día y se confirma otro, el servidor lo rechaza y pide volver a revisar.
+
+**3. Cómo se detectan las estadías vencidas.** Una asignación activa cuya fecha de término ya pasó se considera vencida (`Asignacion.vencida`, evaluada al consultar, sin procesos programados). Se muestra el aviso en el panel del Encargado, la etiqueta «Vencida: registrar salida» en listado y detalle, y el detalle separa fechas contratadas, ingreso efectivo y salida real. El resumen de ocupación cuenta las vencidas.
+
+**4. Por qué las salidas vencidas requieren confirmación del Encargado.** Que la fecha contratada haya pasado no prueba que el huésped dejó la habitación. Liberarla sola podría ofrecerla a otro grupo estando ocupada, de modo que la habitación sigue ocupada hasta que el Encargado registra la salida (`services.liberar_asignacion`). Al registrarla se actualizan los indicadores y desaparece el aviso.
+
+**5. Cómo se conserva la integridad de los datos históricos.** No se modificaron asignaciones ni datos existentes y no hay migraciones nuevas. Las asignaciones anteriores con inicio futuro (si las hubiera) conservan sus fechas y siguen mostrando «Inicio programado». Las boletas mantienen vista y tarifa congeladas, el historial sigue protegido y la salida conserva costo, detalles y movimientos.
+
+**6. Criterios de la rúbrica que se refuerzan.** Fechas de la estadía y registros simultáneos (validación consistente en formulario y servicio), cálculo del valor (sin cambios, $40.000 por persona y noche), reglas del negocio (la ocupación solo comienza con el ingreso efectivo y la salida es una confirmación humana) y pruebas y seguridad (solicitudes manipuladas rechazadas, 20 pruebas nuevas).
+
+**7. Limitaciones que se mantienen.** El sistema no ofrece reservas ni ingresos programados. Las estadías vencidas se señalan, pero dependen de que alguien registre la salida. La base sigue siendo SQLite (la migración a otro motor es una etapa posterior y separada). Los datos de Render no están verificados como persistentes. Las pruebas manuales de interfaz y del sitio publicado las realiza el equipo.
+
+**Verificación técnica realizada (entorno local, SQLite):** `manage.py test hotel`: **280 pruebas, 0 fallos** (260 anteriores + 20 nuevas en `test_estadias_hoy_u4.py`; se ajustaron 2 pruebas anteriores que creaban estadías con inicio futuro: ahora crean la asignación con inicio hoy y desplazan las fechas para simular datos antiguos, y una de superposición usa el mismo día de ingreso). Se comprobó que las pruebas nuevas fallan sin el cambio. `check` y `makemigrations --check`: sin problemas. Simulación de producción con Chrome: 46 de 46 y 11 de 11 comprobaciones aprobadas.

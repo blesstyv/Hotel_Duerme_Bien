@@ -72,7 +72,7 @@ class EstadiasSuperpuestasTests(HotelTestCase):
     def test_misma_persona_no_puede_estar_en_dos_habitaciones_con_fechas_superpuestas(self):
         persona = self.people[0]
         crear_asignacion({self.room1.pk: [persona.pk]}, persona.pk, self.encargado, *estadia(3))
-        inicio, termino = estadia(2, desde=1)  # se superpone con la estadía anterior
+        inicio, termino = estadia(2)  # misma fecha de ingreso (hoy): se superpone con la estadía anterior
         with self.assertRaises(ValidationError) as ctx:
             crear_asignacion({self.room2.pk: [persona.pk]}, persona.pk, self.encargado, inicio, termino)
         mensaje = " ".join(ctx.exception.messages)

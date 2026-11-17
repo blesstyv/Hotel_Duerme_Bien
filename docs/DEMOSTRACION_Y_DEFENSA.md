@@ -62,3 +62,17 @@ Los resultados deben verse en la interfaz o en la salida real de terminal. No pr
 **¿Qué no cubre el prototipo?** Reservas en línea, pagos, facturación, portal de pasajeros, alta disponibilidad, política jurídica de retención y pruebas de carga de producción. Estos límites no sustituyen los 25 RF del alcance implementado.
 
 **¿Cómo se comprueba que funciona?** La matriz une cada RF con código y pruebas; la suite verifica éxito, rechazo y conservación. La demostración recorre operaciones reales, y el documento de evidencia registra las ejecuciones comprobadas y sus límites.
+
+## Defensa: ingreso efectivo y estadías vencidas
+
+**¿Por qué solo se puede asignar con inicio hoy?** El sistema gestiona ingresos efectivos, no reservas. Si una asignación pudiera comenzar en el futuro, marcaría la habitación como ocupada días antes de la llegada. Exigir inicio igual a hoy hace que la ocupación coincida con el ingreso real; la fecha de término sigue siendo elegible.
+
+**¿Se puede saltar la regla manipulando la solicitud?** No: el formulario y el servicio comparten la regla. Una confirmación con fechas cambiadas o sin vista previa se rechaza y no crea la asignación ni ocupa la habitación.
+
+**¿Qué pasa cuando vence la fecha de término?** La estadía se señala como «Vencida: registrar salida» en el panel, el listado y el detalle. La habitación sigue ocupada hasta que el Encargado confirma la salida, porque una fecha vencida no prueba que el huésped se fue.
+
+**¿Se alteran los datos históricos?** No. No hay migraciones nuevas; las boletas, historiales y asignaciones anteriores se conservan, incluidas las que tuvieran inicio futuro.
+
+**¿Qué no cubre?** Reservas anticipadas, liberación automática y procesos programados. Esto es una decisión de diseño, no un olvido.
+
+Para demostrarlo: abrir «Nueva asignación», cambiar el inicio a mañana y ver el mensaje; volver a hoy y revisar el resumen con el costo.

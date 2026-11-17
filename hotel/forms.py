@@ -1197,16 +1197,24 @@ class AsignacionForm(
             "fecha_termino"
         )
 
-        if (
-            inicio
-            and
-            inicio < timezone.localdate()
-        ):
+        hoy = timezone.localdate()
+
+        if inicio and inicio < hoy:
             self.add_error(
                 "fecha_inicio",
                 (
-                    "La fecha de inicio no "
-                    "puede ser anterior a hoy."
+                    "La fecha de inicio no puede ser anterior a hoy. "
+                    f"Una nueva asignación debe comenzar hoy ({hoy:%d/%m/%Y})."
+                ),
+            )
+
+        elif inicio and inicio > hoy:
+            self.add_error(
+                "fecha_inicio",
+                (
+                    "La fecha de inicio no puede ser posterior a hoy. "
+                    "El sistema registra ingresos efectivos, no reservas "
+                    f"anticipadas: la asignación debe comenzar hoy ({hoy:%d/%m/%Y})."
                 ),
             )
 

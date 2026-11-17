@@ -103,10 +103,12 @@
             data-date-mask
             required
             data-stay-start
+            aria-describedby="ayuda-fecha-inicio"
           >
 
-          <div class="help-text">
-            Formato dd/mm/aaaa. No puede ser anterior a hoy.
+          <div class="help-text" id="ayuda-fecha-inicio">
+            Debe ser la fecha de hoy: el sistema registra ingresos
+            efectivos, no reservas anticipadas.
           </div>
 
         </div>
@@ -136,7 +138,7 @@
 
           <div class="help-text">
             Formato dd/mm/aaaa. Debe ser posterior al inicio
-            (mínimo una noche).
+            (mínimo una noche, máximo 365).
           </div>
 
         </div>

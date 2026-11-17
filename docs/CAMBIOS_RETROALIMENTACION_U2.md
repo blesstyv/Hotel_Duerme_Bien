@@ -26,3 +26,11 @@ y la regla vigente es la descrita aquí.
 - **Problema:** con el selector nativo de fecha (`type="date"`) no se podían escribir los números directamente; el campo de término quedaba vacío y el de inicio se corrompía, porque el recálculo se disparaba con cada dígito.
 - **Solución:** los campos de inicio y término ahora son de texto con formato `dd/mm/aaaa`, con máscara que agrega las barras al escribir solo números. El servidor acepta `dd/mm/aaaa` (y también `aaaa-mm-dd` por compatibilidad) y mantiene las mismas validaciones: obligatorias, inicio no anterior a hoy, mínimo una noche y máximo 365.
 - **Archivos:** `hotel/forms.py`, `hotel/views.py`, `hotel/templates/hotel/asignacion_form.html`, `hotel/static/hotel/js/app.js`, `hotel/tests/test_retroalimentacion_u2.py` (3 pruebas nuevas; 162 en total).
+
+## Ajuste posterior: ingreso efectivo (inicio = hoy)
+
+- **Problema:** una asignación con inicio futuro marcaba la habitación como ocupada desde que se registraba, aunque el huésped aún no hubiera llegado.
+- **Solución:** el sistema se define como gestor de ingresos efectivos, no de reservas. La fecha de inicio de una asignación nueva debe ser la de hoy; se rechazan fechas anteriores y posteriores, en el formulario y en el servicio. El término sigue siendo elegible (posterior al inicio, máximo 365 noches) y el costo no cambia ($40.000 por persona y noche).
+- **Estadías vencidas:** se detectan y se señalan, pero la habitación no se libera sola; la salida la confirma el Encargado.
+- **Datos existentes:** no se modifican; las asignaciones antiguas con inicio futuro siguen mostrando «Inicio programado».
+- **Archivos:** `hotel/services.py`, `hotel/forms.py`, `hotel/templates/hotel/asignacion_form.html`, `hotel/tests/test_estadias_hoy_u4.py` y ajustes en dos pruebas existentes.
