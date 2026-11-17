@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" role="img" aria-label="Ilustración de vista a la ciudad">
+<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b3a5a"/><stop offset="1" stop-color="#f3b9c4"/></linearGradient></defs>
+<rect width="160" height="100" fill="url(#s)"/>
+<g fill="#fff" opacity=".8"><circle cx="30" cy="16" r="1"/><circle cx="64" cy="10" r="1"/><circle cx="130" cy="14" r="1"/><circle cx="96" cy="24" r="1"/></g>
+<g fill="#1d2941"><rect x="12" y="48" width="22" height="52"/><rect x="38" y="34" width="26" height="66"/><rect x="68" y="56" width="20" height="44"/><rect x="92" y="28" width="24" height="72"/><rect x="120" y="46" width="28" height="54"/></g>
+<g fill="#ffd9a0"><rect x="17" y="54" width="4" height="4"/><rect x="25" y="62" width="4" height="4"/><rect x="44" y="42" width="4" height="4"/><rect x="54" y="50" width="4" height="4"/><rect x="44" y="64" width="4" height="4"/><rect x="73" y="64" width="4" height="4"/><rect x="98" y="36" width="4" height="4"/><rect x="106" y="48" width="4" height="4"/><rect x="98" y="62" width="4" height="4"/><rect x="126" y="54" width="4" height="4"/><rect x="138" y="66" width="4" height="4"/></g>
+<rect x="4" y="4" width="152" height="92" rx="6" fill="none" stroke="#fff" stroke-width="8"/>
+<rect x="4" y="4" width="152" height="92" rx="6" fill="none" stroke="#cc1234" stroke-opacity=".25" stroke-width="1"/>
+</svg>

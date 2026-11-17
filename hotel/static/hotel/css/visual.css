@@ -1,0 +1,256 @@
+/*
+ * Capa visual refinada — Hotel Duerme Bien.
+ * Solo presentación: no altera estructura funcional, rutas ni lógica.
+ * Se carga después de app.css e improvements.css.
+ */
+
+:root {
+    --ease: cubic-bezier(.2, .7, .2, 1);
+    --t-fast: .16s;
+    --t-base: .24s;
+    --ring: 0 0 0 3px rgba(204, 18, 52, .22);
+    --shadow-sm: 0 1px 2px rgba(29, 41, 65, .06), 0 2px 8px rgba(29, 41, 65, .04);
+    --shadow-md: 0 6px 18px rgba(29, 41, 65, .09), 0 2px 4px rgba(29, 41, 65, .04);
+    --shadow-red: 0 6px 16px rgba(204, 18, 52, .28);
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* ---------- Entrada de página (un solo momento, sin retrasar la navegación) ---------- */
+@keyframes hdb-enter {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+@keyframes hdb-grow {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+}
+@keyframes hdb-pop {
+    from { opacity: 0; transform: scale(.94); }
+    to   { opacity: 1; transform: none; }
+}
+
+.app-body main > * {
+    animation: hdb-enter .38s var(--ease) both;
+}
+.app-body main > *:nth-child(2) { animation-delay: .04s; }
+.app-body main > *:nth-child(3) { animation-delay: .08s; }
+.app-body main > *:nth-child(4) { animation-delay: .12s; }
+.app-body main > *:nth-child(n+5) { animation-delay: .16s; }
+
+.donut { animation: hdb-pop .6s var(--ease) .15s both; }
+.occupancy-progress > * { transform-origin: left center; animation: hdb-grow .9s var(--ease) .2s both; }
+.login-card { animation: hdb-pop .45s var(--ease) both; }
+
+/* ---------- Tarjetas y paneles ---------- */
+.panel,
+.metric-card,
+.detail-card,
+.login-card {
+    transition: box-shadow var(--t-base) var(--ease), transform var(--t-base) var(--ease), border-color var(--t-base);
+}
+.panel { box-shadow: var(--shadow-sm); }
+.metric-card:hover,
+.quick-link:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.quick-link { transition: box-shadow var(--t-base) var(--ease), transform var(--t-base) var(--ease), background var(--t-fast); }
+
+.panel-heading h2 { letter-spacing: -.01em; }
+
+/* Banner de cabecera: más profundidad, misma identidad rosa/rojo */
+.page-hero,
+.page-header,
+.hero {
+    background-image: linear-gradient(120deg, #fff1f4 0%, #ffe3e9 100%);
+    border: 1px solid #f7cdd6;
+    box-shadow: var(--shadow-sm);
+}
+
+.hotel-banner { box-shadow: var(--shadow-md); }
+
+/* ---------- Botones ---------- */
+.btn,
+.icon-button,
+.text-link {
+    transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast),
+                box-shadow var(--t-base) var(--ease), transform var(--t-fast) var(--ease);
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0) scale(.985); }
+.btn-primary:hover { box-shadow: var(--shadow-red); }
+.btn-secondary:hover,
+.btn-soft:hover { box-shadow: var(--shadow-sm); }
+.btn[disabled],
+.btn:disabled,
+.btn.is-disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+.btn.is-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: .85;
+}
+.btn.is-loading::after {
+    content: "";
+    width: 14px; height: 14px;
+    margin-left: 8px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: hdb-spin .7s linear infinite;
+}
+@keyframes hdb-spin { to { transform: rotate(360deg); } }
+
+.icon-button:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.icon-button:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--red);
+    outline-offset: 2px;
+    box-shadow: var(--ring);
+}
+
+/* ---------- Formularios ---------- */
+input,
+select,
+textarea {
+    transition: border-color var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+}
+input:hover:not(:disabled):not([type=checkbox]):not([type=radio]),
+select:hover:not(:disabled),
+textarea:hover:not(:disabled) { border-color: #c9d2e0; }
+input:focus:not([type=checkbox]):not([type=radio]),
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: var(--ring);
+    background: #fff;
+}
+label .required,
+label .req,
+.required-mark { color: var(--red); }
+
+.field-errors,
+.errorlist { animation: hdb-enter .25s var(--ease) both; }
+input[aria-invalid="true"],
+.has-error input,
+.has-error select { border-color: #d8344f; background: #fff8f9; }
+
+/* ---------- Tablas ---------- */
+table { border-collapse: separate; border-spacing: 0; }
+thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #f7f9fc;
+    letter-spacing: .01em;
+}
+tbody tr { transition: background var(--t-fast); }
+tbody tr:hover { background: #fbf5f7; }
+tbody tr:has(.metric-icon.red) td:first-child { box-shadow: inset 3px 0 0 #e85b75; }
+tbody tr:has(.metric-icon.green) td:first-child { box-shadow: inset 3px 0 0 #4ab87c; }
+tbody td { vertical-align: middle; }
+
+.table-scroll { scrollbar-width: thin; scrollbar-color: #cfd6e2 transparent; }
+
+/* ---------- Etiquetas de estado ---------- */
+.badge { transition: transform var(--t-fast); letter-spacing: .005em; }
+tbody tr:hover .badge { transform: translateY(-.5px); }
+
+/* ---------- Navegación lateral ---------- */
+.nav-link {
+    position: relative;
+    transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast) var(--ease), padding-left var(--t-fast) var(--ease);
+}
+.nav-link:not(.active):not([aria-current]):hover { transform: translateX(3px); }
+.nav-link svg { transition: transform var(--t-base) var(--ease); }
+.nav-link:hover svg { transform: scale(1.1); }
+
+/* ---------- Imágenes ilustrativas de habitación ---------- */
+.room-thumb {
+    display: block;
+    border-radius: 6px;
+    background: #eef1f6;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px rgba(29, 41, 65, .08);
+}
+td > .room-thumb {
+    float: left;
+    margin-right: 10px;
+    width: 56px;
+    height: 35px;
+}
+td > .room-thumb + .badge,
+td > .room-thumb + * { margin-top: 7px; }
+
+.room-option { align-items: flex-start; transition: border-color var(--t-fast), background var(--t-fast), box-shadow var(--t-base) var(--ease), transform var(--t-base) var(--ease); }
+.room-option:hover { border-color: #e7a3b1; box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.room-option:has(input:checked) { box-shadow: 0 0 0 2px rgba(204, 18, 52, .18), var(--shadow-md); }
+.room-option:has(input:focus-visible) { box-shadow: var(--ring); }
+.room-option-body { display: block; min-width: 0; flex: 1; }
+.room-thumb-card {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 8 / 5;
+    margin: 0 0 10px;
+    transition: transform var(--t-base) var(--ease), filter var(--t-base);
+    filter: saturate(.92);
+}
+.room-option:hover .room-thumb-card { filter: saturate(1.05); }
+.room-option:has(input:checked) .room-thumb-card { box-shadow: 0 0 0 2px var(--red); }
+
+/* Indicador de habitación seleccionada */
+.room-option { overflow: hidden; }
+.room-option:has(input:checked)::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 0 26px 26px 0;
+    border-color: transparent var(--red) transparent transparent;
+    animation: hdb-pop .25s var(--ease) both;
+}
+
+/* Panel de distribución al aparecer */
+[data-room-panel] { animation: hdb-enter .3s var(--ease) both; }
+
+/* ---------- Diálogos y mensajes ---------- */
+.alert { animation: hdb-enter .3s var(--ease) both; box-shadow: var(--shadow-sm); }
+dialog[open],
+.confirm-dialog { animation: hdb-pop .22s var(--ease) both; }
+
+/* ---------- Login ---------- */
+.login-card { box-shadow: 0 18px 44px rgba(29, 41, 65, .14), 0 2px 6px rgba(29, 41, 65, .05); }
+
+/* ---------- Responsive (refuerzos) ---------- */
+img { max-width: 100%; }
+@media (max-width: 760px) {
+    td > .room-thumb { float: none; margin: 0 0 6px; }
+    .room-thumb-card { aspect-ratio: 16 / 9; }
+    .btn { min-height: 42px; }
+    thead th { position: static; }
+}
+
+/* ---------- Movimiento reducido ---------- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .001ms !important;
+        animation-delay: 0s !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+        scroll-behavior: auto !important;
+    }
+    .btn:hover, .metric-card:hover, .quick-link:hover, .room-option:hover, .icon-button:hover { transform: none; }
+}

@@ -1,5 +1,5 @@
 {% extends 'hotel/base.html' %}
-{% load hotel_tags %}
+{% load hotel_tags static %}
 
 {% block content %}
 
@@ -279,7 +279,9 @@
               >
 
 
-              <span>
+              <span class="room-option-body">
+
+                <img class="room-thumb room-thumb-card" src="{% if room.vista == 'MAR' %}{% static 'hotel/img/vista_mar.svg' %}{% else %}{% static 'hotel/img/vista_ciudad.svg' %}{% endif %}" alt="Ilustración referencial de vista {% if room.vista == 'MAR' %}al mar{% else %}a la ciudad{% endif %}" width="160" height="100" loading="lazy" decoding="async">
 
                 <strong>
                   Habitación {{ room.numero }}

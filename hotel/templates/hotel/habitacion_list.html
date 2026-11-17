@@ -1,5 +1,5 @@
 {% extends 'hotel/base.html' %}
-{% load hotel_tags %}
+{% load hotel_tags static %}
 
 {% block content %}
 
@@ -274,6 +274,7 @@
 
             <td>
 
+              <img class="room-thumb" src="{% if habitacion.vista == 'MAR' %}{% static 'hotel/img/vista_mar.svg' %}{% else %}{% static 'hotel/img/vista_ciudad.svg' %}{% endif %}" alt="Ilustración referencial de vista {% if habitacion.vista == 'MAR' %}al mar{% else %}a la ciudad{% endif %}" width="56" height="35" loading="lazy" decoding="async">
               {% if habitacion.vista == 'MAR' %}
 
                 <span class="badge badge-success">
