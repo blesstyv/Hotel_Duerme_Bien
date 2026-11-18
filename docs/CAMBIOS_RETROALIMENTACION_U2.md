@@ -34,3 +34,12 @@ y la regla vigente es la descrita aquí.
 - **Estadías vencidas:** se detectan y se señalan, pero la habitación no se libera sola; la salida la confirma el Encargado.
 - **Datos existentes:** no se modifican; las asignaciones antiguas con inicio futuro siguen mostrando «Inicio programado».
 - **Archivos:** `hotel/services.py`, `hotel/forms.py`, `hotel/templates/hotel/asignacion_form.html`, `hotel/tests/test_estadias_hoy_u4.py` y ajustes en dos pruebas existentes.
+
+## Ajuste posterior: validación estricta de todos los campos (retroalimentación de la profesora)
+
+- **Problema:** el campo teléfono aceptaba guiones, paréntesis y cualquier largo o país (por ejemplo `--------` o `+56-9-1234-5678`). En Chile el móvil se escribe `+569` seguido de 8 dígitos. La observación pedía además que todos los campos del proyecto estén validados, sean opcionales o no.
+- **Solución:** teléfono móvil chileno estricto (`+569` y 8 dígitos; se admiten espacios como separador y se guarda sin ellos, p. ej. `+56912345678`); sigue siendo opcional, pero si se escribe algo se valida. Se aplica en el formulario de pasajero, en la edición de pasajeros asignados y en el modelo. Correo con formato estricto y guardado en minúsculas (pasajero y cuentas de usuario). Nombre de usuario de 4 a 150 caracteres (letras sin tilde, números y `. _ - + @`). Capacidad de habitación entre 1 y 20. Contraseña de inicio de sesión limitada a 128 caracteres. Atributos HTML (`pattern`, `maxlength`, `inputmode`) como ayuda; la validación real sigue siendo la del servidor.
+- **Datos existentes:** no se modifican ni hay migraciones. Un pasajero antiguo con teléfono inválido se puede abrir, pero al editarlo se debe corregir el teléfono.
+- **Decisión pendiente de confirmar:** el tope de 20 pasajeros por habitación y el mínimo de 4 caracteres del usuario son límites de validación elegidos por el equipo de desarrollo, no reglas entregadas por el hotel.
+- **Archivos:** `hotel/validators.py`, `hotel/models.py`, `hotel/forms.py`, `hotel/views_asignados.py`, `hotel/tests/test_validacion_campos_u4.py`.
+

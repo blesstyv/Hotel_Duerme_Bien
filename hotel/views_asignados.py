@@ -7,11 +7,13 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods
 
 from .decorators import encargado_required
+from .forms import ContactoValidadoMixin
+from .validators import MENSAJE_TELEFONO
 from .models import Hospedaje, Pasajero
 from .services import registrar_movimiento
 
 
-class PasajeroAsignadoForm(forms.ModelForm):
+class PasajeroAsignadoForm(ContactoValidadoMixin, forms.ModelForm):
     """
     Edición operativa de pasajeros con hospedaje activo.
 
@@ -37,7 +39,13 @@ class PasajeroAsignadoForm(forms.ModelForm):
                 attrs={
                     "class": "input",
                     "type": "tel",
-                    "placeholder": "+56 9 1234 5678",
+                    "inputmode": "tel",
+                    "maxlength": 16,
+                    "placeholder": "+56912345678",
+                    "pattern": r"\+56 ?9(?: ?[0-9]){8}",
+                    "title": "Formato +569 y 8 dígitos. "
+                             "Ejemplo: +56912345678.",
+                    "autocomplete": "tel",
                 }
             ),
             "correo": forms.EmailInput(
@@ -56,7 +64,7 @@ class PasajeroAsignadoForm(forms.ModelForm):
 
         self.fields["telefono"].error_messages[
             "invalid"
-        ] = "Ingrese un teléfono válido."
+        ] = MENSAJE_TELEFONO
 
         self.fields["correo"].error_messages[
             "invalid"

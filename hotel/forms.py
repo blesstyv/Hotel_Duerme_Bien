@@ -20,13 +20,18 @@ from django.core.exceptions import (
 from django.utils import timezone
 
 from .models import (
+    MAX_CAPACIDAD_HABITACION,
     MAX_NOCHES_ESTADIA,
     Habitacion,
     Pasajero,
     Usuario,
 )
 from .validators import (
+    MENSAJE_TELEFONO,
+    normalizar_correo,
     normalizar_rut,
+    normalizar_telefono,
+    validar_nombre_usuario,
     validar_nombre_persona,
     validar_numero_habitacion,
     validate_safe_id_list,
@@ -139,6 +144,29 @@ class SafeModelMultipleChoiceField(
         )
 
 
+class ContactoValidadoMixin:
+    """Validación estricta y normalización de teléfono y correo."""
+
+    def clean_telefono(self):
+        return normalizar_telefono(
+            self.cleaned_data.get("telefono", "")
+        )
+
+    def clean_correo(self):
+        return normalizar_correo(
+            self.cleaned_data.get("correo", "")
+        )
+
+
+class UsuarioValidadoMixin:
+    """Reglas comunes de los formularios de cuentas de usuario."""
+
+    def clean_email(self):
+        return normalizar_correo(
+            self.cleaned_data.get("email", "")
+        )
+
+
 class LoginForm(
     SpanishFormMixin,
     forms.Form,
@@ -158,6 +186,7 @@ class LoginForm(
 
     password = forms.CharField(
         label="Contraseña",
+        max_length=128,
         strip=False,
         widget=forms.PasswordInput(
             attrs={
@@ -169,6 +198,7 @@ class LoginForm(
 
 
 class EncargadoCreationForm(
+    UsuarioValidadoMixin,
     SpanishFormMixin,
     UserCreationForm,
 ):
@@ -197,8 +227,8 @@ class EncargadoCreationForm(
 
         help_texts = {
             "username":
-                "Hasta 150 caracteres. "
-                "Letras, números y "
+                "De 4 a 150 caracteres. "
+                "Letras sin tilde, números y "
                 "@ . + - _."
         }
 
@@ -264,7 +294,7 @@ class EncargadoCreationForm(
         )
 
     def clean_username(self):
-        username = (
+        username = validar_nombre_usuario(
             self.cleaned_data[
                 "username"
             ]
@@ -309,6 +339,7 @@ class EncargadoCreationForm(
 
 
 class EncargadoEditForm(
+    UsuarioValidadoMixin,
     SpanishFormMixin,
     forms.ModelForm,
 ):
@@ -366,8 +397,8 @@ class EncargadoEditForm(
 
         help_texts = {
             "username":
-                "Hasta 150 caracteres. "
-                "Letras, números y "
+                "De 4 a 150 caracteres. "
+                "Letras sin tilde, números y "
                 "@ . + - _."
         }
 
@@ -411,7 +442,7 @@ class EncargadoEditForm(
         )
 
     def clean_username(self):
-        username = (
+        username = validar_nombre_usuario(
             self.cleaned_data[
                 "username"
             ]
@@ -585,6 +616,8 @@ class HabitacionForm(
                 forms.NumberInput(
                     attrs={
                         "min": 1,
+                        "max": MAX_CAPACIDAD_HABITACION,
+                        "step": 1,
                     }
                 ),
             "orientacion":
@@ -644,6 +677,13 @@ class HabitacionForm(
                 "al menos un pasajero."
             )
 
+        if capacidad > MAX_CAPACIDAD_HABITACION:
+            raise ValidationError(
+                "La capacidad máxima admitida por "
+                f"habitación es {MAX_CAPACIDAD_HABITACION} "
+                "pasajeros."
+            )
+
         if (
             self.instance.pk
             and
@@ -701,6 +741,7 @@ class HabitacionForm(
 
 
 class PasajeroForm(
+    ContactoValidadoMixin,
     SpanishFormMixin,
     forms.ModelForm,
 ):
@@ -742,12 +783,6 @@ class PasajeroForm(
                 "(opcional)",
         }
 
-        help_texts = {
-            "rut":
-                "RUT chileno con dígito "
-                "verificador. "
-                "Ejemplo: 12.345.678-5."
-        }
 
         widgets = {
             "rut":
@@ -760,10 +795,34 @@ class PasajeroForm(
             "telefono":
                 forms.TextInput(
                     attrs={
-                        "type":
-                            "tel",
+                        "type": "tel",
+                        "inputmode": "tel",
+                        "maxlength": 16,
+                        "placeholder": "+56912345678",
+                        "pattern": r"\+56 ?9(?: ?[0-9]){8}",
+                        "title": "Formato +569 y 8 dígitos. "
+                                 "Ejemplo: +56912345678.",
+                        "autocomplete": "tel",
                     }
                 ),
+            "correo":
+                forms.EmailInput(
+                    attrs={
+                        "maxlength": 254,
+                        "placeholder": "nombre@dominio.cl",
+                        "autocomplete": "email",
+                    }
+                ),
+        }
+
+        help_texts = {
+            "rut":
+                "RUT chileno con dígito "
+                "verificador. "
+                "Ejemplo: 12.345.678-5.",
+            "telefono":
+                "Móvil chileno: +569 y 8 dígitos "
+                "(ej.: +56912345678).",
         }
 
         error_messages = {
