@@ -43,3 +43,11 @@ y la regla vigente es la descrita aquí.
 - **Decisión pendiente de confirmar:** el tope de 20 pasajeros por habitación y el mínimo de 4 caracteres del usuario son límites de validación elegidos por el equipo de desarrollo, no reglas entregadas por el hotel.
 - **Archivos:** `hotel/validators.py`, `hotel/models.py`, `hotel/forms.py`, `hotel/views_asignados.py`, `hotel/tests/test_validacion_campos_u4.py`.
 
+## Ajuste posterior: menú lateral plegable y boleta con datos de la empresa
+
+- **Menú lateral (Administrador y Encargado):** nuevo botón en la barra superior que contrae el menú a una franja de iconos (con el nombre al pasar el cursor) y lo vuelve a expandir. El estado se recuerda en el navegador. En móvil se mantiene el menú desplegable existente.
+- **Boleta de estadía:** ahora muestra los datos de la empresa emisora (razón social, giro, dirección, teléfono, correo), su R.U.T. en un recuadro con el tipo de documento y el N° de boleta, el N° de asignación, quién atendió y un pie con los datos de la empresa. Los datos son **ficticios** (R.U.T. 76.543.210-3, válido por dígito verificador) y están en `hotel/empresa.py`; la boleta lo indica y mantiene el aviso de que no es un documento tributario electrónico. No se agregó desglose de IVA ni forma de pago porque el sistema no los registra.
+- **Datos existentes:** no se modifican; sin migraciones. La boleta de asignaciones anteriores usa los mismos datos de empresa.
+- **Mockups:** capturas reales en `docs/mockups_sidebar_boleta/`.
+- **Archivos:** `hotel/templates/hotel/base.html`, `hotel/templates/hotel/boleta.html`, `hotel/static/hotel/css/visual.css`, `hotel/static/hotel/js/ui.js`, `hotel/static/hotel/js/sidebar_init.js`, `hotel/empresa.py`, `hotel/views.py`, `hotel/templatetags/hotel_tags.py`, `hotel/tests/test_sidebar_boleta_u4.py`.
+

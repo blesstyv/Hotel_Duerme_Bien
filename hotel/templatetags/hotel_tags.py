@@ -30,6 +30,7 @@ ICONS = {
     "money": '<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M5 9v.1m14 6v.1"/>',
     "filter": '<path d="M3 4h18l-7 8v7l-4 2v-9z"/>',
     "eye": '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+    "sidebar": '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',
     "menu": '<path d="M4 6h16M4 12h16M4 18h16"/>',
     "moon": '<path d="M20 15A9 9 0 0 1 9 4a9 9 0 1 0 11 11Z"/>',
     "crown": '<path d="m3 6 4 4 5-6 5 6 4-4-2 12H5zM5 21h14"/>',
