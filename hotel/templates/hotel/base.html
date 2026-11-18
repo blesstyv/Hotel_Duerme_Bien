@@ -45,6 +45,8 @@
     href="{% static 'hotel/css/visual.css' %}"
   >
 
+  <script src="{% static 'hotel/js/sidebar_init.js' %}"></script>
+
   <script
     src="{% static 'hotel/js/ui.js' %}"
     defer
@@ -85,6 +87,18 @@
         aria-expanded="false"
       >
         {% icon 'menu' %}
+      </button>
+
+
+      <button
+        class="icon-button sidebar-collapse"
+        type="button"
+        data-sidebar-collapse
+        aria-label="Contraer menú lateral"
+        aria-expanded="true"
+        title="Contraer menú lateral"
+      >
+        {% icon 'sidebar' %}
       </button>
 
 
@@ -168,6 +182,7 @@
       {% if user.rol == 'ADMINISTRADOR' %}
 
         <a
+          title="Panel principal"
           class="nav-link {% if nav_active == 'dashboard' %}active{% endif %}"
           href="{% url 'hotel:dashboard_admin' %}"
           {% if nav_active == 'dashboard' %}
@@ -180,6 +195,7 @@
 
 
         <a
+          title="Gestión de encargados"
           class="nav-link {% if nav_active == 'encargados' %}active{% endif %}"
           href="{% url 'hotel:encargado_list' %}"
           {% if nav_active == 'encargados' %}
@@ -195,6 +211,7 @@
       {% else %}
 
         <a
+          title="Panel principal"
           class="nav-link {% if nav_active == 'dashboard' %}active{% endif %}"
           href="{% url 'hotel:dashboard_encargado' %}"
           {% if nav_active == 'dashboard' %}
@@ -207,6 +224,7 @@
 
 
         <a
+          title="Habitaciones"
           class="nav-link {% if nav_active == 'habitaciones' %}active{% endif %}"
           href="{% url 'hotel:habitacion_list' %}"
           {% if nav_active == 'habitaciones' %}
@@ -219,6 +237,7 @@
 
 
         <a
+          title="Pasajeros"
           class="nav-link {% if nav_active == 'pasajeros' %}active{% endif %}"
           href="{% url 'hotel:pasajero_list' %}"
           {% if nav_active == 'pasajeros' %}
@@ -231,6 +250,7 @@
 
 
         <a
+          title="Asignaciones"
           class="nav-link {% if nav_active == 'asignaciones' %}active{% endif %}"
           href="{% url 'hotel:asignacion_list' %}"
           {% if nav_active == 'asignaciones' %}
@@ -243,6 +263,7 @@
 
 
         <a
+          title="Ocupación"
           class="nav-link {% if nav_active == 'ocupacion' %}active{% endif %}"
           href="{% url 'hotel:ocupacion' %}"
           {% if nav_active == 'ocupacion' %}
@@ -255,6 +276,7 @@
 
 
         <a
+          title="Historiales"
           class="nav-link {% if nav_active == 'historial' or nav_active == 'historiales' %}active{% endif %}"
           href="{% url 'hotel:historiales' %}"
           {% if nav_active == 'historial' or nav_active == 'historiales' %}
@@ -301,6 +323,7 @@
         <button
           type="submit"
           class="nav-link logout-link"
+          title="Cerrar sesión"
         >
           {% icon 'logout' %}
           <span>Cerrar sesión</span>

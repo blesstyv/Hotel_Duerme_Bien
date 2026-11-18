@@ -23,3 +23,41 @@
         for (var i = 0; i < loading.length; i += 1) { loading[i].classList.remove("is-loading"); }
     });
 })();
+
+/*
+ * Menú lateral plegable (escritorio). El estado se recuerda en el
+ * navegador; en móvil se sigue usando el menú desplegable existente.
+ */
+(function () {
+    "use strict";
+
+    function iniciar() {
+        var boton = document.querySelector("[data-sidebar-collapse]");
+        if (!boton) { return; }
+        var raiz = document.documentElement;
+
+        function actualizar() {
+            var plegado = raiz.classList.contains("sidebar-collapsed");
+            var texto = plegado ? "Expandir menú lateral" : "Contraer menú lateral";
+            boton.setAttribute("aria-expanded", String(!plegado));
+            boton.setAttribute("aria-label", texto);
+            boton.setAttribute("title", texto);
+        }
+
+        boton.addEventListener("click", function () {
+            var plegado = raiz.classList.toggle("sidebar-collapsed");
+            try {
+                window.localStorage.setItem("hdb_sidebar", plegado ? "collapsed" : "expanded");
+            } catch (error) { /* se ignora */ }
+            actualizar();
+        });
+
+        actualizar();
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", iniciar);
+    } else {
+        iniciar();
+    }
+})();

@@ -165,3 +165,16 @@ Automatizadas en `hotel/tests/test_validacion_campos_u4.py` (49 pruebas; suite c
 | CP-86 | Registro antiguo con teléfono inválido (por ejemplo con guiones) | Se puede abrir; al editarlo se exige corregir el teléfono. No se modifica ningún dato guardado automáticamente. |
 | CP-87 | Filtros GET con valores hostiles (`q` larguísimo, `page` negativo o enorme, `capacidad` no numérica, estados inexistentes) | Respuesta 200 sin error; el valor inválido se ignora. |
 | CP-88 | Contraseña de inicio de sesión de más de 128 caracteres o usuario de más de 150 | Rechazo del formulario sin consultar la base de datos. |
+
+## Menú plegable y boleta con datos de la empresa (2026-11-17)
+
+Automatizadas en `hotel/tests/test_sidebar_boleta_u4.py` (9 pruebas; suite completa 338 OK). Las pruebas manuales de interfaz y del sitio publicado las realiza el equipo.
+
+| ID | Caso | Resultado esperado |
+|---|---|---|
+| CP-89 | Botón de contraer menú, como Encargado y como Administrador (escritorio) | El menú pasa a una franja de iconos y el contenido ocupa el espacio; al pulsar de nuevo se expande. |
+| CP-90 | Recargar o cambiar de pantalla con el menú plegado | Se mantiene plegado, sin parpadeo. |
+| CP-91 | Pantalla móvil | No aparece el botón de contraer; el menú desplegable sigue funcionando. |
+| CP-92 | Abrir la boleta de una asignación | Muestra razón social, R.U.T., giro, dirección, contacto, N° de boleta, N° de asignación y «Atendido por»; mantiene el cálculo y el aviso no tributario. |
+| CP-93 | Imprimir / Guardar PDF de la boleta | Los datos de la empresa y el recuadro del R.U.T. se imprimen con colores. |
+

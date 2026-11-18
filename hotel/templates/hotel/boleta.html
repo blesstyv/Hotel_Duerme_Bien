@@ -14,6 +14,19 @@
     .btn { border:1px solid var(--azul); background:#fff; color:var(--azul); padding:9px 16px; border-radius:8px; font:inherit; font-weight:600; cursor:pointer; text-decoration:none; }
     .btn.primario { background:var(--rojo); border-color:var(--rojo); color:#fff; }
     .boleta { max-width:820px; margin:14px auto 40px; background:#fff; border-radius:12px; box-shadow:0 6px 24px rgba(20,33,61,.12); overflow:hidden; }
+    .empresa { display:flex; justify-content:space-between; gap:22px; align-items:flex-start; padding:22px 30px 18px; border-bottom:1px solid var(--linea); }
+    .empresa-datos { display:flex; gap:14px; align-items:flex-start; min-width:0; }
+    .empresa-datos img { width:58px; height:58px; border-radius:10px; flex:none; }
+    .empresa-datos h1 { margin:0; font-size:20px; color:var(--azul); }
+    .empresa-datos p { margin:2px 0 0; font-size:12.5px; color:var(--gris); }
+    .empresa-datos .giro { color:var(--azul); font-weight:600; }
+    .caja-doc { flex:none; min-width:230px; border:2px solid var(--rojo); border-radius:6px; padding:12px 16px; text-align:center; color:var(--rojo); }
+    .caja-doc .rut { font-size:15px; font-weight:700; letter-spacing:.4px; }
+    .caja-doc .tipo { margin:6px 0; font-size:15px; font-weight:800; text-transform:uppercase; letter-spacing:.8px; }
+    .caja-doc .numero { font-size:17px; font-weight:700; }
+    .caja-doc .sucursal { margin-top:6px; font-size:11.5px; color:var(--gris); }
+    .pie-empresa { margin-top:18px; padding-top:12px; border-top:1px solid var(--linea); text-align:center; font-size:12px; color:var(--gris); }
+    .pie-empresa strong { color:var(--azul); }
     .cabecera { display:flex; justify-content:space-between; gap:18px; align-items:center; padding:24px 30px; background:var(--azul); color:#fff; border-bottom:6px solid var(--rojo); }
     .marca { display:flex; gap:14px; align-items:center; }
     .marca img { width:54px; height:54px; border-radius:10px; background:#fff; padding:4px; }
@@ -39,12 +52,12 @@
     .insignia { display:inline-block; padding:2px 10px; border-radius:99px; font-size:12px; font-weight:600; background:#e5f6ec; color:#1b7a43; }
     .insignia.fin { background:#e9edf5; color:#44506b; }
     .cuerpo { overflow-x:auto; }
-    @media (max-width:640px) { .datos { grid-template-columns:1fr; } .cabecera { flex-direction:column; align-items:flex-start; padding:20px 16px; } .cuerpo { padding:18px 14px 24px; } th, td { padding:8px 6px; font-size:12.5px; } .acciones { flex-wrap:wrap; } }
+    @media (max-width:640px) { .empresa { flex-direction:column; padding:18px 16px; } .caja-doc { width:100%; } .datos { grid-template-columns:1fr; } .cabecera { flex-direction:column; align-items:flex-start; padding:20px 16px; } .cuerpo { padding:18px 14px 24px; } th, td { padding:8px 6px; font-size:12.5px; } .acciones { flex-wrap:wrap; } }
     @media print {
       body { background:#fff; }
       .acciones { display:none; }
       .boleta { box-shadow:none; margin:0; border-radius:0; max-width:none; }
-      .cabecera { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+      .cabecera, .caja-doc { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
       th { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     }
   </style>
@@ -58,17 +71,33 @@
 
   <main class="boleta" aria-label="Boleta de estadía">
 
+    <section class="empresa" aria-label="Datos de la empresa">
+      <div class="empresa-datos">
+        <img src="{% static 'hotel/img/logo_hotel.svg' %}" alt="">
+        <div>
+          <h1>{{ empresa.razon_social }}</h1>
+          <p class="giro">Giro: {{ empresa.giro }}</p>
+          <p>{{ empresa.direccion }} · {{ empresa.region }}</p>
+          <p>Teléfono {{ empresa.telefono }} · {{ empresa.correo }}</p>
+        </div>
+      </div>
+      <div class="caja-doc">
+        <div class="rut">R.U.T.: {{ empresa.rut }}</div>
+        <div class="tipo">Boleta de estadía</div>
+        <div class="numero">N° {{ folio }}</div>
+      </div>
+    </section>
+
     <header class="cabecera">
       <div class="marca">
-        <img src="{% static 'hotel/img/favicon.svg' %}" alt="">
         <div>
-          <h1>Hotel Duerme Bien</h1>
-          <p>Boleta de estadía</p>
+          <h1>{{ empresa.nombre_fantasia }}</h1>
+          <p>Comprobante de la estadía</p>
         </div>
       </div>
       <div class="folio">
-        <small>Boleta N°</small>
-        <strong>{{ folio }}</strong>
+        <small>Asignación N°</small>
+        <strong>{{ asignacion.pk }}</strong>
       </div>
     </header>
 
@@ -108,6 +137,10 @@
         <div class="dato">
           <small>Registrada el</small>
           <strong>{{ asignacion.fecha_ingreso|date:'d/m/Y H:i' }}</strong>
+        </div>
+        <div class="dato">
+          <small>Atendido por</small>
+          <strong>{{ asignacion.registrada_por.get_full_name|default:asignacion.registrada_por.username }}</strong>
         </div>
         <div class="dato">
           <small>Estado de la estadía</small>
@@ -166,6 +199,12 @@
         × {{ asignacion.tarifa_aplicada|clp }} = {{ asignacion.costo_total|clp }} (pesos chilenos).
         Documento emitido por el sistema de gestión del hotel como comprobante interno de la estadía;
         no corresponde a un documento tributario electrónico.
+        Los datos de la empresa son ficticios y se usan solo con fines académicos.
+      </p>
+
+      <p class="pie-empresa">
+        <strong>{{ empresa.razon_social }}</strong> · R.U.T. {{ empresa.rut }} · {{ empresa.direccion }}, {{ empresa.region }}<br>
+        {{ empresa.telefono }} · {{ empresa.correo }} · {{ empresa.sitio_web }}
       </p>
 
     </div>

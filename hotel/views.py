@@ -24,6 +24,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from .decorators import admin_required, encargado_required, usuario_required
 from .forms import AsignacionForm, EncargadoCreationForm, EncargadoEditForm, HabitacionForm, LoginForm, PasajeroForm
+from .empresa import EMPRESA
 from .models import Asignacion, DetalleHabitacionAsignada, Habitacion, Hospedaje, LoginIntento, Movimiento, Pasajero, Usuario
 from .models import MAX_NOCHES_ESTADIA
 from .services import TARIFA_PASAJERO, crear_asignacion, eliminar_habitacion, liberar_asignacion, reactivar_habitacion, registrar_movimiento, resumen_ocupacion, validar_asignacion
@@ -452,6 +453,7 @@ def asignacion_boleta(request, pk):
         "detalles": assignment.detalles.select_related("habitacion").prefetch_related("hospedajes"),
         "tarifa": TARIFA_PASAJERO,
         "folio": f"{assignment.pk:06d}",
+        "empresa": EMPRESA,
         "title": f"Boleta de estadía N° {assignment.pk:06d}",
     })
 

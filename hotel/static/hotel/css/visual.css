@@ -313,3 +313,22 @@ td > a:not(.btn):not(.icon-button) { display: inline-block; padding: 6px 4px; ma
 .login-card-logo { display: block; width: 54px; height: 54px; border-radius: 14px; margin-bottom: 22px; box-shadow: 0 6px 16px rgba(204, 18, 52, .25); }
 .login-header-logo { width: 40px; height: 40px; border-radius: 10px; margin-right: 12px; flex: none; }
 .login-header .brand { display: flex; align-items: center; }
+
+/* ===== Menú lateral plegable (escritorio) ===== */
+.sidebar-collapse{display:none}
+@media(min-width:761px){
+  .sidebar-collapse{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--navy);cursor:pointer;margin-right:12px}
+  .sidebar-collapse:hover{background:var(--red-soft);color:var(--red);border-color:#f3c4cd}
+  .sidebar-collapse:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+  .sidebar,.main{transition:width .2s ease,margin-left .2s ease,padding .2s ease}
+  html.sidebar-collapsed{--sidebar:76px}
+  html.sidebar-collapsed .sidebar{padding:22px 10px 16px;overflow:hidden}
+  html.sidebar-collapsed .nav-label,
+  html.sidebar-collapsed .nav-link span,
+  html.sidebar-collapsed .sidebar-note div,
+  html.sidebar-collapsed .sidebar-footer{display:none}
+  html.sidebar-collapsed .nav-link{justify-content:center;padding-left:0;padding-right:0;gap:0}
+  html.sidebar-collapsed .sidebar-note{justify-content:center;padding:12px 0}
+  html.sidebar-collapsed .logout-link{width:100%}
+}
+@media(prefers-reduced-motion:reduce){.sidebar,.main{transition:none}}
