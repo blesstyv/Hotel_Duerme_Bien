@@ -7,7 +7,9 @@ from django.utils import timezone
 
 from .managers import UsuarioManager
 from .validators import (
+    normalizar_correo,
     normalizar_rut,
+    normalizar_telefono,
     validar_nombre_persona,
     validar_numero_habitacion,
     validar_rut,
@@ -19,6 +21,10 @@ TARIFA_PASAJERO_NOCHE = 40000
 
 # Límite de noches aceptado en una sola estadía.
 MAX_NOCHES_ESTADIA = 365
+
+# Tope de validación para la capacidad de una habitación (evita valores
+# absurdos como 2.000 millones de pasajeros).
+MAX_CAPACIDAD_HABITACION = 20
 
 
 class ConservadoQuerySet(models.QuerySet):
@@ -181,6 +187,19 @@ class Habitacion(models.Model):
                     }
                 )
 
+        if (
+            self.capacidad is not None
+            and self.capacidad > MAX_CAPACIDAD_HABITACION
+        ):
+            raise ValidationError(
+                {
+                    "capacidad":
+                        "La capacidad máxima admitida por "
+                        f"habitación es {MAX_CAPACIDAD_HABITACION} "
+                        "pasajeros."
+                }
+            )
+
         if self.pk:
             old = (
                 Habitacion.objects
@@ -303,8 +322,29 @@ class Pasajero(models.Model):
                 }
             )
 
+        # Se normaliza solo si el valor es válido; si no lo es, el error
+        # ya lo informa el validador del propio campo.
+        try:
+            self.telefono = normalizar_telefono(self.telefono)
+        except ValidationError:
+            pass
+
+        try:
+            self.correo = normalizar_correo(self.correo)
+        except ValidationError:
+            pass
+
     def clean_fields(self, exclude=None):
         super().clean_fields(exclude=exclude)
+
+        # El correo se valida con un formato estricto (usuario@dominio.tld);
+        # se hace aquí y no como validador del campo para no alterar el
+        # esquema ni requerir migraciones.
+        if not exclude or "correo" not in exclude:
+            try:
+                normalizar_correo(self.correo)
+            except ValidationError as exc:
+                raise ValidationError({"correo": exc.messages})
 
         # Solo se valida el nombre cuando el formulario lo incluye;
         # así no se bloquea editar teléfono o correo de pasajeros antiguos.

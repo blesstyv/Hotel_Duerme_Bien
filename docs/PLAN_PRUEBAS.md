@@ -147,3 +147,21 @@ Automatizadas en `hotel/tests/test_estadias_hoy_u4.py` (20 pruebas, ejecutadas: 
 | CP-79 | Asignación antigua con inicio futuro | Se conserva sin cambios y sigue marcada «Inicio programado». |
 | CP-80 | Estadía vencida | Se detecta; el aviso aparece en panel, listado y detalle; la habitación sigue ocupada tras consultar las pantallas; no puede asignarse a otro grupo. |
 | CP-81 | Registrar la salida de una estadía vencida | Habitación vacante, indicadores actualizados, aviso desaparece, historial, boleta y movimientos intactos; no se puede registrar dos veces. |
+
+## Validación estricta de campos (2026-11-17, retroalimentación de la profesora)
+
+Automatizadas en `hotel/tests/test_validacion_campos_u4.py` (49 pruebas; suite completa: 329 OK). Las pruebas manuales de interfaz y del sitio publicado las realiza el equipo; no se registran como ejecutadas.
+
+| ID | Caso | Resultado esperado |
+|---|---|---|
+| CP-78 | Teléfono de pasajero con guiones, paréntesis, letras, otro país, otro largo o sin `+569` (formulario de pasajero, edición de pasajero asignado, POST manipulado y modelo) | Rechazo con mensaje que indica el formato `+569` y 8 dígitos; no se guarda nada. |
+| CP-79 | Teléfono `+56912345678`, `+56 9 1234 5678` o vacío (opcional) | Se acepta y se guarda normalizado como `+56912345678` (o vacío). |
+| CP-80 | Correo (pasajero y cuentas de usuario) sin arroba, sin dominio con punto, con espacios, `..`, TLD de un carácter o más largo que el permitido | Rechazo con mensaje; vacío sigue siendo válido donde el campo es opcional; se guarda en minúsculas. |
+| CP-81 | Nombre de usuario de 1 a 3 caracteres, con espacios, tildes, símbolos no permitidos, solo números o más de 150 caracteres | Rechazo con mensaje; usuario duplicado ignora mayúsculas. |
+| CP-82 | Nombres y apellidos con números o símbolos, vacíos o de más de 150 caracteres | Rechazo con mensaje; tildes, ñ, apóstrofe y guion siguen permitidos. |
+| CP-83 | Capacidad de habitación vacía, 0, negativa, decimal, texto o mayor a 20 (formulario, modelo y POST) | Rechazo; 1 a 20 se acepta. |
+| CP-84 | Número de habitación, orientación y vista fuera de formato o de catálogo | Rechazo con mensaje. |
+| CP-85 | Pasajero hospedado: se envía otro RUT/nombre y un teléfono/correo inválidos | RUT y nombre se conservan; teléfono y correo se validan igual y se rechazan. |
+| CP-86 | Registro antiguo con teléfono inválido (por ejemplo con guiones) | Se puede abrir; al editarlo se exige corregir el teléfono. No se modifica ningún dato guardado automáticamente. |
+| CP-87 | Filtros GET con valores hostiles (`q` larguísimo, `page` negativo o enorme, `capacidad` no numérica, estados inexistentes) | Respuesta 200 sin error; el valor inválido se ignora. |
+| CP-88 | Contraseña de inicio de sesión de más de 128 caracteres o usuario de más de 150 | Rechazo del formulario sin consultar la base de datos. |

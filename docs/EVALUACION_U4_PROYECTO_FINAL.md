@@ -17,7 +17,7 @@ Aprendizaje esperado 3.1.5: corregir el código del prototipo a partir de los re
 | Fechas de la estadía | Inicio y término obligatorios, término posterior al inicio, inicio igual a hoy (ingreso efectivo, sin reservas anticipadas), máximo 365 noches | `validar_estadia`, `AsignacionForm`, `CheckConstraint` | `EstadiaYCostoTests`, `FormatoFechaEstadiaTests` |
 | Boleta de estadía | Documento imprimible con folio, representante, fechas, noches, pasajeros por habitación, vista, tarifa, subtotales y total | `views.asignacion_boleta`, `boleta.html`, `boleta.js` | `BoletaEstadiaTests` |
 | Reglas del negocio | Ver la tabla siguiente | — | Suite completa |
-| Pruebas, corrección y seguridad | 280 pruebas automatizadas, controles de seguridad y mapeo ISO | `hotel/tests/` | Ejecución registrada abajo |
+| Pruebas, corrección y seguridad | 329 pruebas automatizadas, controles de seguridad y mapeo ISO | `hotel/tests/` | Ejecución registrada abajo |
 
 ## Reglas del negocio verificadas
 
@@ -149,3 +149,6 @@ Etapa de la rama `feat/estadias-hoy-y-vencidas` (2026-11-17), pendiente de revis
 **7. Limitaciones que se mantienen.** El sistema no ofrece reservas ni ingresos programados. Las estadías vencidas se señalan, pero dependen de que alguien registre la salida. La base sigue siendo SQLite (la migración a otro motor es una etapa posterior y separada). Los datos de Render no están verificados como persistentes. Las pruebas manuales de interfaz y del sitio publicado las realiza el equipo.
 
 **Verificación técnica realizada (entorno local, SQLite):** `manage.py test hotel`: **280 pruebas, 0 fallos** (260 anteriores + 20 nuevas en `test_estadias_hoy_u4.py`; se ajustaron 2 pruebas anteriores que creaban estadías con inicio futuro: ahora crean la asignación con inicio hoy y desplazan las fechas para simular datos antiguos, y una de superposición usa el mismo día de ingreso). Se comprobó que las pruebas nuevas fallan sin el cambio. `check` y `makemigrations --check`: sin problemas. Simulación de producción con Chrome: 46 de 46 y 11 de 11 comprobaciones aprobadas.
+
+**Actualización 2026-11-17 (retroalimentación de la profesora: validación de campos).** El teléfono ahora exige formato móvil chileno `+569` + 8 dígitos (antes aceptaba guiones y otros formatos), y se reforzaron correo, usuario, capacidad y contraseña de acceso (detalle en `docs/CAMBIOS_RETROALIMENTACION_U2.md`). `manage.py test hotel`: **329 pruebas, 0 fallos** (280 anteriores + 49 nuevas en `test_validacion_campos_u4.py`); `check` y `makemigrations --check` sin cambios. No hay migraciones nuevas. Pendiente a cargo del equipo: pruebas manuales en el sitio publicado.
+

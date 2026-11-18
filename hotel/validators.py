@@ -52,14 +52,100 @@ def validar_rut(value):
     normalizar_rut(value)
 
 
+MENSAJE_TELEFONO = (
+    "Ingresa un teléfono móvil chileno con el formato +569 seguido de "
+    "8 dígitos. Ejemplo: +56912345678. No se admiten guiones, "
+    "paréntesis ni letras."
+)
+
+
+def normalizar_telefono(value):
+    """
+    Teléfono móvil chileno: +569 seguido de exactamente 8 dígitos.
+
+    Se aceptan espacios como separador visual (+56 9 1234 5678), que se
+    eliminan al normalizar. Se rechaza cualquier otro carácter (guiones,
+    paréntesis, puntos, letras), otros prefijos y otros largos.
+    Un valor vacío es válido (campo opcional) y se devuelve como "".
+    """
+    texto = str(value or "").strip()
+
+    if not texto:
+        return ""
+
+    if not re.fullmatch(r"\+[0-9]+(?: [0-9]+)*", texto):
+        raise ValidationError(MENSAJE_TELEFONO)
+
+    compacto = texto.replace(" ", "")
+
+    if not re.fullmatch(r"\+569[0-9]{8}", compacto):
+        raise ValidationError(MENSAJE_TELEFONO)
+
+    return compacto
+
+
 def validar_telefono(value):
-    if value and not re.fullmatch(
-        r"\+?[0-9 ()-]{7,20}",
-        value,
-    ):
+    normalizar_telefono(value)
+
+
+MAX_LARGO_CORREO = 254
+
+
+def normalizar_correo(value):
+    """
+    Correo opcional: se valida el formato completo (usuario@dominio.tld),
+    sin espacios, con dominio que incluya un punto y un TLD de letras.
+    Un valor vacío es válido y se devuelve como "".
+    """
+    texto = str(value or "").strip()
+
+    if not texto:
+        return ""
+
+    mensaje = "Ingresa un correo electrónico válido, por ejemplo nombre@dominio.cl."
+
+    if len(texto) > MAX_LARGO_CORREO or re.search(r"\s", texto):
+        raise ValidationError(mensaje)
+
+    if not re.fullmatch(
+        r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?"
+        r"(?:\.[A-Za-z0-9](?:[A-Za-z0-9\-]*[A-Za-z0-9])?)*\.[A-Za-z]{2,}",
+        texto,
+    ) or ".." in texto:
+        raise ValidationError(mensaje)
+
+    local = texto.split("@", 1)[0]
+
+    if local.startswith(".") or local.endswith(".") or len(local) > 64:
+        raise ValidationError(mensaje)
+
+    return texto.lower()
+
+
+def validar_correo(value):
+    normalizar_correo(value)
+
+
+def validar_nombre_usuario(value):
+    """
+    Nombre de usuario de acceso: de 4 a 150 caracteres, solo letras sin
+    tilde, números y . _ - + @, con al menos una letra.
+    """
+    texto = str(value or "")
+
+    if not re.fullmatch(r"[A-Za-z0-9._@+\-]{4,150}", texto):
         raise ValidationError(
-            "Ingresa un teléfono válido de 7 a 20 caracteres."
+            "El usuario debe tener entre 4 y 150 caracteres y usar solo "
+            "letras sin tilde, números y los símbolos . _ - + @ "
+            "(sin espacios)."
         )
+
+    if not any(c.isalpha() for c in texto):
+        raise ValidationError(
+            "El usuario debe incluir al menos una letra."
+        )
+
+    return texto
 
 
 def validate_safe_positive_id(value):
